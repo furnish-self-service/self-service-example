@@ -1,0 +1,17 @@
+# Cross-platform app: package IDs differ per package manager, so each resource
+# has a DSC `condition` that selects it by OS. Skipped resources don't count.
+metadata:
+  furnish:
+    description: Command-line benchmarking tool
+    categories: [Development]
+resources:
+  - name: hyperfine (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: sharkdp.hyperfine
+  - name: hyperfine
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: hyperfine

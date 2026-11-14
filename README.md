@@ -8,8 +8,29 @@ An example app collection for [furnish](https://github.com/furnish-self-service/
 |---|---|---|
 | `cowsay` | Fun | The `cowsay` package |
 | `htop` | System, Monitoring | The `htop` package |
+| `hyperfine` | Development | `hyperfine`, or `sharkdp.hyperfine` from winget on Windows |
 
-Both apps use the `Furnish/Package` resource. It's bundled with furnish and installs packages with pacman, apt, dnf, zypper or Homebrew.
+All apps use the `Furnish/Package` resource. It's bundled with furnish and installs packages with pacman, apt, dnf, zypper, Homebrew or nix, and with winget on Windows.
+
+## Package names that differ per OS
+
+When a package has a different ID on some OS, give each variant its own resource with a DSC `condition`. furnish skips resources whose condition is false. [`apps/hyperfine.dsc.yaml`](apps/hyperfine.dsc.yaml) shows the pattern:
+
+```yaml
+resources:
+  - name: hyperfine (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: sharkdp.hyperfine
+  - name: hyperfine
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: hyperfine
+```
+
+`context().os.family` returns `Linux`, `macOS` or `Windows`.
 
 ## Try it
 
