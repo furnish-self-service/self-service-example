@@ -4,6 +4,7 @@ metadata:
   furnish:
     description: Command-line benchmarking tool
     categories: [Development]
+    icon: icons/hyperfine.svg
 resources:
   - name: hyperfine (winget)
     type: Furnish/Package

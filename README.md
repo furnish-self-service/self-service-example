@@ -46,10 +46,14 @@ furnish install cowsay
 
 [`kits/terminal-basics.yaml`](kits/terminal-basics.yaml) groups apps users install together. `htop` is required; `cowsay` is preselected and `hyperfine` isn't, and users can change both. Kits reference apps of the same collection by name.
 
+## Icons
+
+The collection's avatar is set in [`collection.yaml`](collection.yaml), each app's in its `metadata.furnish.icon`, and the kit's in its `icon`. The icons are in [`icons/`](icons), as SVG so they stay sharp at every size.
+
 ## Add an app
 
 1. Create `apps/<app-name>.dsc.yaml`. The file name, without `.dsc.yaml`, becomes the app's name.
-2. Set `metadata.furnish.description` and `metadata.furnish.categories`. The catalog shows both.
+2. Set `metadata.furnish.description` and `metadata.furnish.categories`. The catalog shows both. `metadata.furnish.icon` adds an icon: an SVG, PNG, JPEG or WebP file in this repository, for example in `icons/`.
 3. Under `resources`, list what the app needs in the [DSC v3 configuration format](https://learn.microsoft.com/powershell/dsc/concepts/configuration-documents/overview).
 4. Commit and push. Users get the app with `furnish collection update`.
 

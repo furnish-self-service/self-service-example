@@ -1,0 +1,3 @@
+# The collection itself: its avatar in furnish (Collections page, app cards, detail pages).
+# This file can also declare options the apps share, see furnish's README ("Options").
+icon: icons/collection.svg

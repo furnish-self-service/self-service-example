@@ -3,6 +3,7 @@ metadata:
   furnish:
     description: Interactive process viewer for the terminal.
     categories: [System, Monitoring]
+    icon: icons/htop.svg
 resources:
   - name: htop package
     type: Furnish/Package

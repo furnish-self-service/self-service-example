@@ -6,6 +6,7 @@ metadata:
   furnish:
     description: Let an ASCII cow say stuff in your terminal!
     categories: [Fun]
+    icon: icons/cowsay.svg      # relative to the collection root
 resources:
   - name: cowsay package
     type: Furnish/Package

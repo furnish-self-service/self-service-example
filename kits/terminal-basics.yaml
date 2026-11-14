@@ -2,6 +2,7 @@
 # Required items are always installed; users can deselect optional ones.
 description: Handy tools for working in the terminal
 categories: [System]
+icon: icons/terminal-basics.svg
 items:
   - app: htop
     required: true
