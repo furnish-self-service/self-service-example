@@ -49,6 +49,8 @@ furnish install cowsay
 3. Under `resources`, list what the app needs in the [DSC v3 configuration format](https://learn.microsoft.com/powershell/dsc/concepts/configuration-documents/overview).
 4. Commit and push. Users get the app with `furnish collection update`.
 
+For the DSC v3 rules and pitfalls, see the [authoring-dsc-v3 skill](https://github.com/furnish-self-service/furnish/blob/main/skills/authoring-dsc-v3/SKILL.md) in the furnish repository.
+
 To check an app before you push, point furnish at your local clone:
 
 ```sh
