@@ -42,6 +42,10 @@ furnish install cowsay
 
 `furnish install` asks for your sudo password when the package manager needs root.
 
+## Kits
+
+[`kits/terminal-basics.yaml`](kits/terminal-basics.yaml) groups apps users install together. `htop` is required; `cowsay` is preselected and `hyperfine` isn't, and users can change both. Kits reference apps of the same collection by name.
+
 ## Add an app
 
 1. Create `apps/<app-name>.dsc.yaml`. The file name, without `.dsc.yaml`, becomes the app's name.
