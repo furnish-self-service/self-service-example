@@ -1,0 +1,13 @@
+# A furnish app is a plain DSC v3 configuration document.
+# `metadata.furnish` describes how the app shows up in the catalog;
+# `resources` describe the desired state when the app is installed.
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Let an ASCII cow say stuff in your terminal!
+    categories: [Fun]
+resources:
+  - name: cowsay package
+    type: Furnish/Package
+    properties:
+      name: cowsay

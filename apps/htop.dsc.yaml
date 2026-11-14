@@ -1,0 +1,10 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Interactive process viewer for the terminal.
+    categories: [System, Monitoring]
+resources:
+  - name: htop package
+    type: Furnish/Package
+    properties:
+      name: htop
