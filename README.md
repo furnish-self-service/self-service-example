@@ -48,7 +48,7 @@ furnish install cowsay
 
 ## Icons
 
-The collection's avatar is set in [`collection.yaml`](collection.yaml), each app's in its `metadata.furnish.icon`, and the kit's in its `icon`. The icons are in [`icons/`](icons), as SVG so they stay sharp at every size.
+The collection's avatar is set in [`collection.yaml`](collection.yaml), each app's in its `metadata.furnish.icon`, and the kit's in its `icon`. The icons are in [`icons/`](icons), as SVG so they stay sharp at every size. [`htop.svg`](icons/htop.svg) is htop's own icon (from [htop-dev/htop](https://github.com/htop-dev/htop), GPL-2.0-or-later); cowsay and hyperfine have no official icon, so theirs, like the collection's and the kit's, were drawn for this collection (MIT).
 
 ## Add an app
 
