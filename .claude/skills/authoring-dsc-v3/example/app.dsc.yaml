@@ -1,0 +1,19 @@
+# Configuration document: install 7-Zip with a package ID per OS and add a hosts entry.
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+resources:
+  - name: 7-Zip (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: 7zip.7zip
+  - name: 7-Zip
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: p7zip
+  - name: intranet host
+    type: Example.Hosts/Entry
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      ip: 10.0.0.5
+      hostname: intranet.example
