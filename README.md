@@ -1,6 +1,6 @@
 # self-service-example
 
-An example app collection for [furnish](https://gitlab.com/furnish-self-service/furnish). Copy it as a starting point for your organization's own catalog.
+An example app collection for [furnish](https://github.com/furnish-self-service/furnish). Copy it as a starting point for your organization's own catalog.
 
 ## Apps in this collection
 
@@ -14,7 +14,7 @@ Both apps use the `Furnish/Package` resource. It's bundled with furnish and inst
 ## Try it
 
 ```sh
-furnish collection add git@gitlab.com:furnish-self-service/self-service-example.git
+furnish collection add git@github.com:furnish-self-service/self-service-example.git
 furnish list
 furnish install cowsay
 ```
