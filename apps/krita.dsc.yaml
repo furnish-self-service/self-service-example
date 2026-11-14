@@ -1,0 +1,18 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Digital painting app for concept art, illustration and comics.
+    categories: [Graphics]
+    icon: icons/krita.svg
+    recommended: "[equals(parameters('role'), 'design')]"
+resources:
+  - name: krita (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: KDE.Krita
+  - name: krita
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: krita

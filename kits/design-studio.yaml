@@ -1,0 +1,10 @@
+# Image, vector and painting apps for designers.
+description: Image editing, vector graphics and digital painting
+categories: [Graphics]
+icon: icons/design-studio.svg
+items:
+  - app: gimp
+    required: true
+  - app: inkscape
+    required: true
+  - app: krita          # optional, selected by default

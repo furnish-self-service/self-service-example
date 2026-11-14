@@ -1,3 +1,14 @@
 # The collection itself: its avatar in furnish (Collections page, app cards, detail pages).
-# This file can also declare options the apps share, see furnish's README ("Options").
 icon: icons/collection.svg
+# Options the apps share, see furnish's README ("Options"). Apps use `role` in `recommended`
+# to show up on the Discover page for the people who need them.
+parameters:
+  role:
+    type: string
+    required: true              # asked when the collection is added
+    label: What do you work on?
+    description: Recommends the apps for your role.
+    allowedValues:
+      - { value: developer, label: Software development }
+      - { value: design, label: Design and media }
+      - { value: office, label: Office work }

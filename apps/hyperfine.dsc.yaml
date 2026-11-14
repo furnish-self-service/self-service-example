@@ -5,6 +5,7 @@ metadata:
     description: Command-line benchmarking tool
     categories: [Development]
     icon: icons/hyperfine.svg
+    recommended: "[equals(parameters('role'), 'developer')]"
 resources:
   - name: hyperfine (winget)
     type: Furnish/Package

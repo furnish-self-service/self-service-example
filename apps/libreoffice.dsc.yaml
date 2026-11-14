@@ -1,0 +1,19 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Office suite with a word processor, spreadsheets, presentations and more.
+    categories: [Office]
+    icon: icons/libreoffice.svg
+    recommended: "[equals(parameters('role'), 'office')]"
+resources:
+  - name: libreoffice (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: TheDocumentFoundation.LibreOffice
+  - name: libreoffice
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: libreoffice
+      pacmanName: libreoffice-fresh   # Arch splits it into libreoffice-fresh and libreoffice-still

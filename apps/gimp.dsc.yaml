@@ -1,0 +1,18 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Image editor for photo retouching, image composition and painting.
+    categories: [Graphics, Photo]
+    icon: icons/gimp.svg
+    recommended: "[equals(parameters('role'), 'design')]"
+resources:
+  - name: gimp (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: GIMP.GIMP.3
+  - name: gimp
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: gimp

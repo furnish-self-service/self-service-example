@@ -1,0 +1,19 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Video editor with multi-track editing, effects and transitions.
+    categories: [Video]
+    icon: icons/kdenlive.svg
+    recommended: "[equals(parameters('role'), 'design')]"
+resources:
+  - name: kdenlive (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: KDE.Kdenlive
+  - name: kdenlive
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: kdenlive
+      nixName: kdePackages.kdenlive   # nixpkgs keeps KDE apps in the kdePackages set

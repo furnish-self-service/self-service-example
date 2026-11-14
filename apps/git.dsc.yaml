@@ -1,0 +1,18 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Distributed version control system.
+    categories: [Development]
+    icon: icons/git.svg
+    recommended: "[equals(parameters('role'), 'developer')]"
+resources:
+  - name: git (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: Git.Git
+  - name: git
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: git

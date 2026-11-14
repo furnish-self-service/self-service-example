@@ -10,5 +10,6 @@ metadata:
 resources:
   - name: cowsay package
     type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"   # not in winget
     properties:
       name: cowsay

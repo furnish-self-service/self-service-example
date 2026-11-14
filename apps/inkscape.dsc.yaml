@@ -1,0 +1,18 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Vector graphics editor for illustrations, diagrams, logos and icons.
+    categories: [Graphics]
+    icon: icons/inkscape.svg
+    recommended: "[equals(parameters('role'), 'design')]"
+resources:
+  - name: inkscape (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: Inkscape.Inkscape
+  - name: inkscape
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: inkscape
