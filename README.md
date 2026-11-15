@@ -38,7 +38,7 @@ All three systems use the same OpenVPN configuration. It is written once in the 
 - macOS: `Microsoft.DSC.Transitional/RunCommandOnSet` writes a Tunnelblick configuration and installs it with Tunnelblick's installer.
 - Linux: `File/Content` writes the file to `/etc/openvpn`, and `RunCommandOnSet` imports it into NetworkManager as "Acme VPN".
 
-The configuration is an example: replace the server `vpn.acme.example` and the CA certificate with your own. It contains no private keys. People sign in with their name and password when they connect (`auth-user-pass`). The app writes to system folders, so it needs administrator rights: install it through the furnish service, from a collection your organization presets.
+The configuration is an example: replace the server `vpn.acme.example` and the CA certificate with your own. It contains no private keys. People sign in with their name and password when they connect (`auth-user-pass`). The app writes to system folders, so it needs administrator rights. People without them install it through the furnish service, from a collection your organization presets; an administrator can also install it as themselves and types their password. On macOS the service installs Tunnelblick with Homebrew, as the administrator account that owns Homebrew; see [macOS: the service and Homebrew](https://github.com/furnish-self-service/furnish/blob/main/docs/site/admins.md#macos-the-service-and-homebrew).
 
 `File/Content` doesn't delete files, and `RunCommandOnSet` runs its command on every install. So furnish can't uninstall the app by itself. The app lists its own removal steps under `metadata.furnish.uninstall`, and furnish runs them to uninstall it:
 

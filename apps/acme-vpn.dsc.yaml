@@ -20,7 +20,8 @@ metadata:
         properties:
           executable: powershell.exe
           arguments: [-NoProfile, -Command, "Remove-Item -LiteralPath 'C:\\Program Files\\OpenVPN\\config\\acme.ovpn' -ErrorAction SilentlyContinue"]
-      # As root through sudo when furnish runs as the user, see "Tunnelblick configuration".
+      # As root through the furnish service; through sudo for an admin installing as themselves,
+      # see "Tunnelblick configuration".
       - name: delete the Tunnelblick configuration
         type: Microsoft.DSC.Transitional/RunCommandOnSet
         condition: "[equals(context().os.family, 'macOS')]"
@@ -84,9 +85,11 @@ resources:
   # https://www.tunnelblick.net/cInstallFromCommandLine.html. The .tblk is written by the same
   # command because Tunnelblick's documentation doesn't say whether the installer keeps the
   # Temp copy. Untested: what Tunnelblick shows when it starts for the first time.
-  # furnish runs as the user on a Mac, not as root: Homebrew, which installs Tunnelblick for
-  # openvpn-client, refuses to run as root. So the commands that need root run through sudo
-  # (furnish's own Package resource does the same).
+  # Through the furnish service, these commands run as root and need no sudo (the service runs
+  # Homebrew, which installs Tunnelblick for openvpn-client, as the account that owns it). An
+  # administrator can also install the app as themselves, without the service: then furnish
+  # runs as that user, and the commands that need root go through sudo, which asks for their
+  # password. `as` is empty for root and `sudo` otherwise.
   - name: Tunnelblick configuration
     type: Microsoft.DSC.Transitional/RunCommandOnSet
     condition: "[equals(context().os.family, 'macOS')]"
@@ -106,8 +109,9 @@ resources:
         - sh
         - *ovpn
   # Tells whether the configuration is installed. Not Tunnelblick's copy in Shared/: only root
-  # may read it, and furnish runs as the user. A copy anyone can read, written by the command
-  # above (File/Content leaves an existing file with this content alone).
+  # may read it, and furnish checks the status as the user, also with the service. A copy anyone
+  # can read, written by the command above (File/Content leaves an existing file with this
+  # content alone).
   - name: Acme VPN configuration (macOS)
     type: Microsoft.Filesystem.File/Content
     condition: "[equals(context().os.family, 'macOS')]"
