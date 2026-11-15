@@ -20,12 +20,17 @@ metadata:
         properties:
           executable: powershell.exe
           arguments: [-NoProfile, -Command, "Remove-Item -LiteralPath 'C:\\Program Files\\OpenVPN\\config\\acme.ovpn' -ErrorAction SilentlyContinue"]
+      # As root through sudo when furnish runs as the user, see "Tunnelblick configuration".
       - name: delete the Tunnelblick configuration
         type: Microsoft.DSC.Transitional/RunCommandOnSet
         condition: "[equals(context().os.family, 'macOS')]"
         properties:
-          executable: /bin/rm
-          arguments: [-rf, "/Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk"]
+          executable: /bin/sh
+          arguments:
+            - -c
+            - 'if [ "$(id -u)" = 0 ]; then rm -rf "$1"; else sudo rm -rf "$1"; fi'
+            - sh
+            - /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk
       - name: delete the NetworkManager connection
         type: Microsoft.DSC.Transitional/RunCommandOnSet
         condition: "[equals(context().os.family, 'Linux')]"
@@ -68,6 +73,9 @@ resources:
   # https://www.tunnelblick.net/cInstallFromCommandLine.html. The .tblk is written by the same
   # command because Tunnelblick's documentation doesn't say whether the installer keeps the
   # Temp copy. Untested: what Tunnelblick shows when it starts for the first time.
+  # furnish runs as the user on a Mac, not as root: Homebrew, which installs Tunnelblick for
+  # openvpn-client, refuses to run as root. So the commands that need root run through sudo
+  # (furnish's own Package resource does the same).
   - name: Tunnelblick configuration
     type: Microsoft.DSC.Transitional/RunCommandOnSet
     condition: "[equals(context().os.family, 'macOS')]"
@@ -77,11 +85,12 @@ resources:
         - -c
         - >-
           set -e;
+          as=; [ "$(id -u)" = 0 ] || as=sudo;
           tblk="/Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk";
-          mkdir -p "$tblk/Contents/Resources";
-          printf '%s' "$1" > "$tblk/Contents/Resources/config.ovpn";
-          chown -R root:wheel "$tblk"; chmod -R go-w "$tblk";
-          /Applications/Tunnelblick.app/Contents/Resources/installer 0x7000 "$tblk"
+          $as mkdir -p "$tblk/Contents/Resources";
+          printf '%s' "$1" | $as tee "$tblk/Contents/Resources/config.ovpn" >/dev/null;
+          $as chown -R root:wheel "$tblk"; $as chmod -R go-w "$tblk";
+          $as /Applications/Tunnelblick.app/Contents/Resources/installer 0x7000 "$tblk"
         - sh
         - *ovpn
   # Tells whether the configuration is installed: the copy Tunnelblick keeps for all users.
