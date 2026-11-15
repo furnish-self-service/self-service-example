@@ -4,44 +4,51 @@ An example app collection for [furnish](https://github.com/furnish-self-service/
 
 ## Apps in this collection
 
-| App | Category | Recommended for | winget ID on Windows |
-|---|---|---|---|
-| `gimp` | Graphics, Photo | Design and media | `GIMP.GIMP.3` |
-| `inkscape` | Graphics | Design and media | `Inkscape.Inkscape` |
-| `krita` | Graphics | Design and media | `KDE.Krita` |
-| `kdenlive` | Video | Design and media | `KDE.Kdenlive` |
-| `libreoffice` | Office | Office work | `TheDocumentFoundation.LibreOffice` |
-| `keepassxc` | Security | Everyone | `KeePassXCTeam.KeePassXC` |
-| `git` | Development | Software development | `Git.Git` |
-| `hyperfine` | Development | Software development | `sharkdp.hyperfine` |
-| `htop` | System, Monitoring | Software development | not available on Windows |
-| `cowsay` | Fun | nobody, it's just fun | not available on Windows |
+| App | Category | Recommended for | Windows (winget) | macOS (Homebrew) | Linux |
+|---|---|---|---|---|---|
+| `firefox` | Internet | Everyone | `Mozilla.Firefox` | `firefox` | `firefox` |
+| `google-chrome` | Internet | | `Google.Chrome` | `google-chrome` | – |
+| `thunderbird` | Communication, Office | Office work | `Mozilla.Thunderbird` | `thunderbird` | `thunderbird` |
+| `slack` | Communication | Everyone | `SlackTechnologies.Slack` | `slack` | – |
+| `zoom` | Communication | Everyone | `Zoom.Zoom` | `zoom` | – |
+| `microsoft-teams` | Communication | Office work | `Microsoft.Teams` | `microsoft-teams` | – |
+| `libreoffice` | Office | Office work | `TheDocumentFoundation.LibreOffice` | `libreoffice` | `libreoffice` |
+| `adobe-acrobat-reader` | Office | Office work | `Adobe.Acrobat.Reader.64-bit` | `adobe-acrobat-reader` | – |
+| `keepassxc` | Security | Everyone | `KeePassXCTeam.KeePassXC` | `keepassxc` | `keepassxc` |
+| `7zip` | Utilities | | `7zip.7zip` | `sevenzip` | `7zip` |
+| `vlc` | Video | | `VideoLAN.VLC` | `vlc` | `vlc` |
+| `git` | Development | Software development | `Git.Git` | `git` | `git` |
+| `visual-studio-code` | Development | Software development | `Microsoft.VisualStudioCode` | `visual-studio-code` | – |
+| `postman` | Development | Software development | `Postman.Postman` | `postman` | – |
+| `gimp` | Graphics | Design and media | `GIMP.GIMP.3` | `gimp` | `gimp` |
+| `inkscape` | Graphics | Design and media | `Inkscape.Inkscape` | `inkscape` | `inkscape` |
+| `figma` | Graphics | Design and media | `Figma.Figma` | `figma` | – |
 
-All apps use the `Furnish/Package` resource. It's bundled with furnish and installs packages with pacman, apt, dnf, zypper, Homebrew or nix, and with winget on Windows. Every app is in the official repositories of Arch Linux, Debian, Ubuntu, Fedora and openSUSE, in Homebrew (as a formula or cask) and in nixpkgs.
+All apps use the `Furnish/Package` resource. It's bundled with furnish and installs packages with winget on Windows, Homebrew on macOS, and on Linux with the distribution's package manager or Nix. Apps marked – on Linux aren't in the distributions' own repositories; without a resource for Linux, furnish shows them as not available there.
 
 ## Package names that differ per OS
 
-When a package has a different ID on some OS, give each variant its own resource with a DSC `condition`. furnish skips resources whose condition is false. [`apps/hyperfine.dsc.yaml`](apps/hyperfine.dsc.yaml) shows the pattern:
+When a package has a different ID on some OS, give each variant its own resource with a DSC `condition`. furnish skips resources whose condition is false. [`apps/firefox.dsc.yaml`](apps/firefox.dsc.yaml) shows the pattern:
 
 ```yaml
 resources:
-  - name: hyperfine (winget)
+  - name: firefox (winget)
     type: Furnish/Package
     condition: "[equals(context().os.family, 'Windows')]"
     properties:
-      name: sharkdp.hyperfine
-  - name: hyperfine
+      name: Mozilla.Firefox
+  - name: firefox
     type: Furnish/Package
     condition: "[not(equals(context().os.family, 'Windows'))]"
     properties:
-      name: hyperfine
+      name: firefox
 ```
 
-`context().os.family` returns `Linux`, `macOS` or `Windows`.
+`context().os.family` returns `Windows`, `macOS` or `Linux`.
 
-Some package managers name a package differently. Properties such as `pacmanName` or `nixName` override `name` for one of them: [`apps/libreoffice.dsc.yaml`](apps/libreoffice.dsc.yaml) installs `libreoffice-fresh` on Arch, [`apps/kdenlive.dsc.yaml`](apps/kdenlive.dsc.yaml) `kdePackages.kdenlive` from nixpkgs.
+Some package managers name a package differently. Properties such as `pacmanName` or `brewName` override `name` for one of them: [`apps/libreoffice.dsc.yaml`](apps/libreoffice.dsc.yaml) installs `libreoffice-fresh` on Arch, [`apps/7zip.dsc.yaml`](apps/7zip.dsc.yaml) `sevenzip` from Homebrew.
 
-`htop` and `cowsay` have no Windows package, so their only resource has a Linux/macOS condition, and furnish shows them as not available on Windows.
+Apps such as [`apps/slack.dsc.yaml`](apps/slack.dsc.yaml) have a resource for Windows and one for macOS only.
 
 ## Recommendations by role
 
@@ -58,7 +65,7 @@ metadata:
 ```sh
 furnish collection add git@github.com:furnish-self-service/self-service-example.git --option role=developer
 furnish list
-furnish install cowsay
+furnish install firefox
 ```
 
 `furnish install` asks for your sudo password when the package manager needs root.
@@ -69,30 +76,38 @@ Kits in [`kits/`](kits) group apps users install together. Kits reference apps o
 
 | Kit | Required | Optional, preselected | Optional, not preselected |
 |---|---|---|---|
-| [`terminal-basics`](kits/terminal-basics.yaml) | `htop` | `cowsay` | `hyperfine` |
-| [`design-studio`](kits/design-studio.yaml) | `gimp`, `inkscape` | `krita` | |
-| [`office`](kits/office.yaml) | `libreoffice`, `keepassxc` | | |
+| [`office`](kits/office.yaml) | `libreoffice`, `thunderbird` | `keepassxc` | `7zip` |
+| [`design-studio`](kits/design-studio.yaml) | `gimp`, `inkscape` | `figma` | |
+| [`developer`](kits/developer.yaml) | `git`, `visual-studio-code` | `postman` | |
 
 ## Icons
 
 The collection's avatar is set in [`collection.yaml`](collection.yaml), each app's in its `metadata.furnish.icon`, and each kit's in its `icon`. The icons are in [`icons/`](icons), as SVG so they stay sharp at every size.
 
-The app icons are the projects' own, taken unchanged from their source repositories:
+The app icons are the vendors' and projects' own, unchanged apart from size optimization:
 
 | Icon | Source | License |
 |---|---|---|
-| [`gimp.svg`](icons/gimp.svg) | [GNOME/gimp-data](https://gitlab.gnome.org/GNOME/gimp-data/-/blob/main/images/logo/gimp-logo.svg) | CC-BY-SA-4.0 |
-| [`inkscape.svg`](icons/inkscape.svg) | [inkscape/inkscape](https://gitlab.com/inkscape/inkscape/-/blob/master/share/branding/inkscape.svg), by Andrew Michael Fitzsimon | CC-BY-SA-3.0 |
-| [`krita.svg`](icons/krita.svg) | [graphics/krita](https://invent.kde.org/graphics/krita/-/blob/master/krita/pics/branding/default/sc-apps-krita.svgz) (unzipped) | CC-BY-SA-4.0 |
-| [`kdenlive.svg`](icons/kdenlive.svg) | [multimedia/kdenlive](https://invent.kde.org/multimedia/kdenlive/-/blob/master/data/icons/sc-apps-kdenlive.svg), by Julius Künzel | LGPL-3.0-or-later |
+| [`firefox.svg`](icons/firefox.svg) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Firefox_logo,_2019.svg) | MPL-2.0 |
+| [`thunderbird.svg`](icons/thunderbird.svg) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Thunderbird_2023_icon.svg) | MPL-2.0 |
 | [`libreoffice.svg`](icons/libreoffice.svg) | [LibreOffice/core](https://github.com/LibreOffice/core/blob/master/sysui/desktop/icons/hicolor/scalable/apps/main.svg) | MPL-2.0 |
 | [`keepassxc.svg`](icons/keepassxc.svg) | [keepassxreboot/keepassxc](https://github.com/keepassxreboot/keepassxc/blob/develop/share/icons/application/scalable/apps/keepassxc.svg), by Lorenzo Stella | LGPL-2.0 |
+| [`vlc.svg`](icons/vlc.svg) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:VLC_Icon.svg) | GPL |
 | [`git.svg`](icons/git.svg) | [git/git-scm.com](https://github.com/git/git-scm.com/blob/gh-pages/static/images/logos/downloads/Git-Icon-1788C.svg), Git Logo by Jason Long | CC-BY-3.0 |
-| [`htop.svg`](icons/htop.svg) | [htop-dev/htop](https://github.com/htop-dev/htop) | GPL-2.0-or-later |
+| [`gimp.svg`](icons/gimp.svg) | [GNOME/gimp-data](https://gitlab.gnome.org/GNOME/gimp-data/-/blob/main/images/logo/gimp-logo.svg) | CC-BY-SA-4.0 |
+| [`inkscape.svg`](icons/inkscape.svg) | [inkscape/inkscape](https://gitlab.com/inkscape/inkscape/-/blob/master/share/branding/inkscape.svg), by Andrew Michael Fitzsimon | CC-BY-SA-3.0 |
+| [`7zip.svg`](icons/7zip.svg) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:7-Zip_Icon.svg) | Public domain |
+| [`google-chrome.svg`](icons/google-chrome.svg) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Google_Chrome_icon_(February_2022).svg) | Public domain |
+| [`slack.svg`](icons/slack.svg) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Slack_icon_2019.svg) | Public domain |
+| [`microsoft-teams.svg`](icons/microsoft-teams.svg) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Microsoft_Office_Teams_(2025%E2%80%93present).svg) | Public domain |
+| [`adobe-acrobat-reader.svg`](icons/adobe-acrobat-reader.svg) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Adobe_Acrobat_Reader_icon_(2020).svg) | Public domain |
+| [`visual-studio-code.svg`](icons/visual-studio-code.svg) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Visual_Studio_Code_1.35_icon.svg) | Public domain |
+| [`figma.svg`](icons/figma.svg) | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Figma-logo.svg) | Public domain |
+| [`postman.svg`](icons/postman.svg) | [Postman](https://voyager.postman.com/logo/postman-logo-icon-orange.svg) | Postman's own logo |
 
-The names and logos remain trademarks of their projects; they identify the apps here.
+The names and logos remain trademarks of their owners; they identify the apps here.
 
-cowsay and hyperfine have no official icon, so theirs, like the collection's and the kits' (`collection.svg`, `terminal-basics.svg`, `design-studio.svg`, `office.svg`), were drawn for this collection (MIT).
+Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The collection's and the kits' icons (`collection.svg`, `office.svg`, `design-studio.svg`, `developer.svg`) were drawn for this collection (MIT).
 
 ## Add an app
 

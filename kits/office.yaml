@@ -1,9 +1,12 @@
 # What everyone in the office needs.
-description: Office suite and password manager
+description: Office suite, email and a password manager
 categories: [Office]
 icon: icons/office.svg
 items:
   - app: libreoffice
     required: true
-  - app: keepassxc
+  - app: thunderbird
     required: true
+  - app: keepassxc        # optional, selected by default
+  - app: 7zip
+    selected: false       # optional, not selected by default

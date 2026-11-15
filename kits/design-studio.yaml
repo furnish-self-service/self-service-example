@@ -1,5 +1,5 @@
-# Image, vector and painting apps for designers.
-description: Image editing, vector graphics and digital painting
+# Image, vector and interface design.
+description: Image editing, vector graphics and interface design
 categories: [Graphics]
 icon: icons/design-studio.svg
 items:
@@ -7,4 +7,4 @@ items:
     required: true
   - app: inkscape
     required: true
-  - app: krita          # optional, selected by default
+  - app: figma          # optional, selected by default

@@ -1,0 +1,17 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Media player for almost every audio and video format.
+    categories: [Video]
+    icon: icons/vlc.svg
+resources:
+  - name: vlc (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: VideoLAN.VLC
+  - name: vlc
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: vlc

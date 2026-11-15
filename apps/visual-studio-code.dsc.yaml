@@ -1,0 +1,20 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Code editor with debugging, Git and extensions.
+    categories: [Development]
+    icon: icons/visual-studio-code.svg
+    recommended: "[equals(parameters('role'), 'developer')]"
+resources:
+  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
+  # shows visual-studio-code as not available there.
+  - name: visual-studio-code (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: Microsoft.VisualStudioCode
+  - name: visual-studio-code (Homebrew)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'macOS')]"
+    properties:
+      name: visual-studio-code

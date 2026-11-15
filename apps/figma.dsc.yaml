@@ -1,0 +1,20 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Interface design and prototyping, together in real time.
+    categories: [Graphics]
+    icon: icons/figma.svg
+    recommended: "[equals(parameters('role'), 'design')]"
+resources:
+  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
+  # shows figma as not available there.
+  - name: figma (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: Figma.Figma
+  - name: figma (Homebrew)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'macOS')]"
+    properties:
+      name: figma

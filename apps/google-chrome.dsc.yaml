@@ -1,0 +1,19 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Web browser from Google.
+    categories: [Internet]
+    icon: icons/google-chrome.svg
+resources:
+  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
+  # shows google-chrome as not available there.
+  - name: google-chrome (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: Google.Chrome
+  - name: google-chrome (Homebrew)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'macOS')]"
+    properties:
+      name: google-chrome

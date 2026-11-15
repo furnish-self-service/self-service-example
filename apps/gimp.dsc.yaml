@@ -2,7 +2,7 @@ $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
     description: Image editor for photo retouching, image composition and painting.
-    categories: [Graphics, Photo]
+    categories: [Graphics]
     icon: icons/gimp.svg
     recommended: "[equals(parameters('role'), 'design')]"
 resources:

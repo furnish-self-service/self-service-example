@@ -1,0 +1,20 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Team chat with channels, huddles and file sharing.
+    categories: [Communication]
+    icon: icons/slack.svg
+    recommended: true
+resources:
+  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
+  # shows slack as not available there.
+  - name: slack (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: SlackTechnologies.Slack
+  - name: slack (Homebrew)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'macOS')]"
+    properties:
+      name: slack

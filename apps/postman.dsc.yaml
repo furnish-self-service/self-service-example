@@ -1,0 +1,20 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Build, test and document APIs.
+    categories: [Development]
+    icon: icons/postman.svg
+    recommended: "[equals(parameters('role'), 'developer')]"
+resources:
+  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
+  # shows postman as not available there.
+  - name: postman (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: Postman.Postman
+  - name: postman (Homebrew)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'macOS')]"
+    properties:
+      name: postman

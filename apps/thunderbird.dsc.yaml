@@ -1,18 +1,18 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
-    description: Digital painting app for concept art, illustration and comics.
-    categories: [Graphics]
-    icon: icons/krita.svg
-    recommended: "[equals(parameters('role'), 'design')]"
+    description: Email, calendar and contacts.
+    categories: [Communication, Office]
+    icon: icons/thunderbird.svg
+    recommended: "[equals(parameters('role'), 'office')]"
 resources:
-  - name: krita (winget)
+  - name: thunderbird (winget)
     type: Furnish/Package
     condition: "[equals(context().os.family, 'Windows')]"
     properties:
-      name: KDE.Krita
-  - name: krita
+      name: Mozilla.Thunderbird
+  - name: thunderbird
     type: Furnish/Package
     condition: "[not(equals(context().os.family, 'Windows'))]"
     properties:
-      name: krita
+      name: thunderbird

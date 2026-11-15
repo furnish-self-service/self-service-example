@@ -1,0 +1,18 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Web browser from Mozilla.
+    categories: [Internet]
+    icon: icons/firefox.svg
+    recommended: true
+resources:
+  - name: firefox (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: Mozilla.Firefox
+  - name: firefox
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: firefox

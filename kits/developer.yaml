@@ -1,0 +1,10 @@
+# A developer's first day.
+description: Version control, a code editor and an API client
+categories: [Development]
+icon: icons/developer.svg
+items:
+  - app: git
+    required: true
+  - app: visual-studio-code
+    required: true
+  - app: postman        # optional, selected by default

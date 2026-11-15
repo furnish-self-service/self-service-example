@@ -1,0 +1,20 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Chat, meetings and calls for Microsoft 365.
+    categories: [Communication]
+    icon: icons/microsoft-teams.svg
+    recommended: "[equals(parameters('role'), 'office')]"
+resources:
+  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
+  # shows microsoft-teams as not available there.
+  - name: microsoft-teams (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: Microsoft.Teams
+  - name: microsoft-teams (Homebrew)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'macOS')]"
+    properties:
+      name: microsoft-teams

@@ -1,0 +1,19 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: File archiver for 7z, zip, rar and many other formats.
+    categories: [Utilities]
+    icon: icons/7zip.svg
+resources:
+  - name: 7zip (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: 7zip.7zip
+  - name: 7zip
+    type: Furnish/Package
+    condition: "[not(equals(context().os.family, 'Windows'))]"
+    properties:
+      name: 7zip
+      brewName: sevenzip
+      nixName: _7zz

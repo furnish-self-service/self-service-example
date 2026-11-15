@@ -1,0 +1,20 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: Video meetings and webinars.
+    categories: [Communication]
+    icon: icons/zoom.svg
+    recommended: true
+resources:
+  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
+  # shows zoom as not available there.
+  - name: zoom (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: Zoom.Zoom
+  - name: zoom (Homebrew)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'macOS')]"
+    properties:
+      name: zoom
