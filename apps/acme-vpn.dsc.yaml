@@ -32,12 +32,22 @@ metadata:
             - sh
             - /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk
             - /Library/Application Support/Acme VPN
+      # `nmcli connection import` copied the CA certificate into the home folder of whoever ran
+      # it (root, through the furnish service). The connection's vpn.data says where
+      # ("ca = /root/.local/share/networkmanagement/certificates/nm-openvpn/acme-vpn-ca.pem, ..."),
+      # so it is read before the connection is deleted.
       - name: delete the NetworkManager connection
         type: Microsoft.DSC.Transitional/RunCommandOnSet
         condition: "[equals(context().os.family, 'Linux')]"
         properties:
           executable: /bin/sh
-          arguments: [-c, "nmcli connection delete id 'Acme VPN' >/dev/null 2>&1; rm -f /etc/openvpn/acme-vpn.ovpn"]
+          arguments:
+            - -c
+            - >-
+              ca=$(nmcli -g vpn.data connection show id 'Acme VPN' 2>/dev/null | tr ',' '\n' | sed -n 's/^ *ca = //p');
+              nmcli connection delete id 'Acme VPN' >/dev/null 2>&1;
+              case "$ca" in */networkmanagement/certificates/nm-openvpn/*) rm -f "$ca" ;; esac;
+              rm -f /etc/openvpn/acme-vpn.ovpn
 resources:
   # Windows: in config\, not config-auto\. OpenVPN GUI lists the configurations in config\ and
   # asks for the user's name and password when they connect (auth-user-pass). The service that
