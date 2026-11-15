@@ -28,9 +28,10 @@ metadata:
           executable: /bin/sh
           arguments:
             - -c
-            - 'if [ "$(id -u)" = 0 ]; then rm -rf "$1"; else sudo rm -rf "$1"; fi'
+            - 'as=; [ "$(id -u)" = 0 ] || as=sudo; $as rm -rf "$1" "$2"'
             - sh
             - /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk
+            - /Library/Application Support/Acme VPN
       - name: delete the NetworkManager connection
         type: Microsoft.DSC.Transitional/RunCommandOnSet
         condition: "[equals(context().os.family, 'Linux')]"
@@ -87,19 +88,22 @@ resources:
           set -e;
           as=; [ "$(id -u)" = 0 ] || as=sudo;
           tblk="/Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk";
-          $as mkdir -p "$tblk/Contents/Resources";
+          $as mkdir -p "$tblk/Contents/Resources" "/Library/Application Support/Acme VPN";
           printf '%s' "$1" | $as tee "$tblk/Contents/Resources/config.ovpn" >/dev/null;
+          $as cp "$tblk/Contents/Resources/config.ovpn" "/Library/Application Support/Acme VPN/acme.ovpn";
           $as chown -R root:wheel "$tblk"; $as chmod -R go-w "$tblk";
           $as /Applications/Tunnelblick.app/Contents/Resources/installer 0x7000 "$tblk"
         - sh
         - *ovpn
-  # Tells whether the configuration is installed: the copy Tunnelblick keeps for all users.
-  - name: Tunnelblick shared configuration
+  # Tells whether the configuration is installed. Not Tunnelblick's copy in Shared/: only root
+  # may read it, and furnish runs as the user. A copy anyone can read, written by the command
+  # above (File/Content leaves an existing file with this content alone).
+  - name: Acme VPN configuration (macOS)
     type: Microsoft.Filesystem.File/Content
     condition: "[equals(context().os.family, 'macOS')]"
     dependsOn: ["[resourceId('Microsoft.DSC.Transitional/RunCommandOnSet', 'Tunnelblick configuration')]"]
     properties:
-      path: /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk/Contents/Resources/config.ovpn
+      path: /Library/Application Support/Acme VPN/acme.ovpn
       content: *ovpn
   # Linux: NetworkManager imports the configuration as the connection "Acme VPN". The file
   # also tells furnish whether the app is installed.
