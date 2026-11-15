@@ -1,0 +1,26 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    description: OpenVPN client. OpenVPN on Windows, Tunnelblick on macOS, NetworkManager's OpenVPN plugin on Linux.
+    categories: [Network]
+    icon: icons/openvpn-client.svg
+# A separate app, so that uninstalling acme-vpn removes the connection and keeps the client.
+resources:
+  - name: OpenVPN (winget)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      name: OpenVPNTechnologies.OpenVPN
+  - name: Tunnelblick (Homebrew)
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'macOS')]"
+    properties:
+      name: tunnelblick
+  - name: NetworkManager OpenVPN plugin
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Linux')]"
+    properties:
+      name: NetworkManager-openvpn # Fedora (dnf), openSUSE (zypper)
+      aptName: network-manager-openvpn
+      pacmanName: networkmanager-openvpn
+      nixName: networkmanager-openvpn

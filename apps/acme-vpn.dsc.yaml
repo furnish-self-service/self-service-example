@@ -1,0 +1,115 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+# Sets up the connection "Acme VPN" with one OpenVPN configuration on every system. The client
+# comes from the app openvpn-client. Writing to system folders needs administrator rights, so
+# install this app through the furnish service (a collection your organization presets).
+metadata:
+  furnish:
+    description: Connection to the Acme company network over OpenVPN. You sign in with your Acme account when you connect.
+    categories: [Network]
+    icon: icons/acme-vpn.svg
+    recommended: true
+    dependencies:
+      - app: openvpn-client
+        required: true
+    # The resources below can't remove what they set up (File/Content doesn't delete files,
+    # RunCommandOnSet runs on every install), so uninstalling runs these steps instead.
+    uninstall:
+      - name: delete the configuration (Windows)
+        type: Microsoft.DSC.Transitional/RunCommandOnSet
+        condition: "[equals(context().os.family, 'Windows')]"
+        properties:
+          executable: powershell.exe
+          arguments: [-NoProfile, -Command, "Remove-Item -LiteralPath 'C:\\Program Files\\OpenVPN\\config\\acme.ovpn' -ErrorAction SilentlyContinue"]
+      - name: delete the Tunnelblick configuration
+        type: Microsoft.DSC.Transitional/RunCommandOnSet
+        condition: "[equals(context().os.family, 'macOS')]"
+        properties:
+          executable: /bin/rm
+          arguments: [-rf, "/Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk"]
+      - name: delete the NetworkManager connection
+        type: Microsoft.DSC.Transitional/RunCommandOnSet
+        condition: "[equals(context().os.family, 'Linux')]"
+        properties:
+          executable: /bin/sh
+          arguments: [-c, "nmcli connection delete id 'Acme VPN' >/dev/null 2>&1; rm -f /etc/openvpn/acme-vpn.ovpn"]
+resources:
+  # Windows: in config\, not config-auto\. OpenVPN GUI lists the configurations in config\ and
+  # asks for the user's name and password when they connect (auth-user-pass). The service that
+  # starts config-auto\ at boot has nobody to ask.
+  - name: OpenVPN configuration (Windows)
+    type: Microsoft.Filesystem.File/Content
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      path: C:\Program Files\OpenVPN\config\acme.ovpn
+      # EXAMPLE configuration: replace the server and the CA certificate with your own. It has no
+      # private keys: people sign in with auth-user-pass. The other systems use the same text
+      # through the YAML alias *ovpn.
+      content: &ovpn |
+        # EXAMPLE: Acme VPN, replace vpn.acme.example and the CA certificate below.
+        client
+        dev tun
+        proto udp
+        remote vpn.acme.example 1194
+        resolv-retry infinite
+        nobind
+        persist-key
+        persist-tun
+        remote-cert-tls server
+        auth-user-pass
+        cipher AES-256-GCM
+        verb 3
+        <ca>
+        -----BEGIN CERTIFICATE-----
+        EXAMPLE-ONLY-REPLACE-WITH-YOUR-ORGANIZATIONS-CA-CERTIFICATE
+        -----END CERTIFICATE-----
+        </ca>
+  # macOS: Tunnelblick installs a configuration (.tblk) from its Temp folder, which must belong
+  # to root:wheel and not be writable by others. Its installer runs as root without asking:
+  # https://www.tunnelblick.net/cInstallFromCommandLine.html. The .tblk is written by the same
+  # command because Tunnelblick's documentation doesn't say whether the installer keeps the
+  # Temp copy. Untested: what Tunnelblick shows when it starts for the first time.
+  - name: Tunnelblick configuration
+    type: Microsoft.DSC.Transitional/RunCommandOnSet
+    condition: "[equals(context().os.family, 'macOS')]"
+    properties:
+      executable: /bin/sh
+      arguments:
+        - -c
+        - >-
+          set -e;
+          tblk="/Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk";
+          mkdir -p "$tblk/Contents/Resources";
+          printf '%s' "$1" > "$tblk/Contents/Resources/config.ovpn";
+          chown -R root:wheel "$tblk"; chmod -R go-w "$tblk";
+          /Applications/Tunnelblick.app/Contents/Resources/installer 0x7000 "$tblk"
+        - sh
+        - *ovpn
+  # Tells whether the configuration is installed: the copy Tunnelblick keeps for all users.
+  - name: Tunnelblick shared configuration
+    type: Microsoft.Filesystem.File/Content
+    condition: "[equals(context().os.family, 'macOS')]"
+    dependsOn: ["[resourceId('Microsoft.DSC.Transitional/RunCommandOnSet', 'Tunnelblick configuration')]"]
+    properties:
+      path: /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk/Contents/Resources/config.ovpn
+      content: *ovpn
+  # Linux: NetworkManager imports the configuration as the connection "Acme VPN". The file
+  # also tells furnish whether the app is installed.
+  - name: OpenVPN configuration (Linux)
+    type: Microsoft.Filesystem.File/Content
+    condition: "[equals(context().os.family, 'Linux')]"
+    properties:
+      path: /etc/openvpn/acme-vpn.ovpn
+      content: *ovpn
+  - name: NetworkManager connection
+    type: Microsoft.DSC.Transitional/RunCommandOnSet
+    condition: "[equals(context().os.family, 'Linux')]"
+    dependsOn: ["[resourceId('Microsoft.Filesystem.File/Content', 'OpenVPN configuration (Linux)')]"]
+    properties:
+      executable: /bin/sh
+      arguments:
+        - -c
+        - >-
+          nmcli connection delete id 'Acme VPN' >/dev/null 2>&1;
+          nmcli connection import type openvpn file /etc/openvpn/acme-vpn.ovpn &&
+          nmcli connection modify acme-vpn connection.id 'Acme VPN' &&
+          nmcli connection reload

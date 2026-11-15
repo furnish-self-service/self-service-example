@@ -23,8 +23,38 @@ An example app collection for [furnish](https://github.com/furnish-self-service/
 | `gimp` | Graphics | Design and media | `GIMP.GIMP.3` | `gimp` | `gimp` |
 | `inkscape` | Graphics | Design and media | `Inkscape.Inkscape` | `inkscape` | `inkscape` |
 | `figma` | Graphics | Design and media | `Figma.Figma` | `figma` | – |
+| `openvpn-client` | Network | | `OpenVPNTechnologies.OpenVPN` | `tunnelblick` | `NetworkManager-openvpn` |
+| `acme-vpn` | Network | Everyone | configuration file | Tunnelblick configuration | NetworkManager connection |
 
-All apps use the `Furnish/Package` resource. It's bundled with furnish and installs packages with winget on Windows, Homebrew on macOS, and on Linux with the distribution's package manager or Nix. Apps marked – on Linux aren't in the distributions' own repositories; without a resource for Linux, furnish shows them as not available there.
+All apps except `acme-vpn` use the `Furnish/Package` resource. It's bundled with furnish and installs packages with winget on Windows, Homebrew on macOS, and on Linux with the distribution's package manager or Nix. Apps marked – on Linux aren't in the distributions' own repositories; without a resource for Linux, furnish shows them as not available there.
+
+## Configurations, not only packages
+
+[`apps/acme-vpn.dsc.yaml`](apps/acme-vpn.dsc.yaml) sets up a VPN connection to a fictional company network. It installs no package itself. It depends on `openvpn-client`, which installs OpenVPN on Windows, Tunnelblick on macOS and NetworkManager's OpenVPN plugin on Linux. Uninstalling `acme-vpn` removes the connection and keeps the client.
+
+All three systems use the same OpenVPN configuration. It is written once in the file, under the YAML anchor `&ovpn`, and used again as `*ovpn`:
+
+- Windows: `Microsoft.Filesystem.File/Content` writes it to `C:\Program Files\OpenVPN\config\acme.ovpn`. People connect with OpenVPN GUI.
+- macOS: `Microsoft.DSC.Transitional/RunCommandOnSet` writes a Tunnelblick configuration and installs it with Tunnelblick's installer.
+- Linux: `File/Content` writes the file to `/etc/openvpn`, and `RunCommandOnSet` imports it into NetworkManager as "Acme VPN".
+
+The configuration is an example: replace the server `vpn.acme.example` and the CA certificate with your own. It contains no private keys. People sign in with their name and password when they connect (`auth-user-pass`). The app writes to system folders, so it needs administrator rights: install it through the furnish service, from a collection your organization presets.
+
+`File/Content` doesn't delete files, and `RunCommandOnSet` runs its command on every install. So furnish can't uninstall the app by itself. The app lists its own removal steps under `metadata.furnish.uninstall`, and furnish runs them to uninstall it:
+
+```yaml
+metadata:
+  furnish:
+    uninstall:
+      - name: delete the NetworkManager connection
+        type: Microsoft.DSC.Transitional/RunCommandOnSet
+        condition: "[equals(context().os.family, 'Linux')]"
+        properties:
+          executable: /bin/sh
+          arguments: [-c, "nmcli connection delete id 'Acme VPN' >/dev/null 2>&1; rm -f /etc/openvpn/acme-vpn.ovpn"]
+```
+
+Without removal steps, furnish wouldn't offer to uninstall the app. `File/Content` and `RunCommandOnSet` are DSC's own resources. furnish ships them, so computers don't need DSC installed.
 
 ## Package names that differ per OS
 
@@ -107,7 +137,7 @@ The app icons are the vendors' and projects' own, unchanged apart from size opti
 
 The names and logos remain trademarks of their owners; they identify the apps here.
 
-Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The collection's and the kits' icons (`collection.svg`, `office.svg`, `design-studio.svg`, `developer.svg`) were drawn for this collection (MIT).
+Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The collection's and the kits' icons (`collection.svg`, `office.svg`, `design-studio.svg`, `developer.svg`) and those of `acme-vpn` and `openvpn-client` were drawn for this collection (MIT).
 
 ## Add an app
 
