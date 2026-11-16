@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: VLC
     description: Media player for almost every audio and video format.
     categories: [Video]
     icon: icons/vlc.svg

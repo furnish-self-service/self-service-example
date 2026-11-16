@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: KeePassXC
     description: Password manager that keeps your passwords in an encrypted database.
     categories: [Security]
     icon: icons/keepassxc.svg

@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: 7-Zip
     description: File archiver for 7z, zip, rar and many other formats.
     categories: [Utilities]
     icon: icons/7zip.svg

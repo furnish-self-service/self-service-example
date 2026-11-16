@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: Firefox
     description: Web browser from Mozilla.
     categories: [Internet]
     icon: icons/firefox.svg

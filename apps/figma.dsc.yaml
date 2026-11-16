@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: Figma
     description: Interface design and prototyping, together in real time.
     categories: [Graphics]
     icon: icons/figma.svg

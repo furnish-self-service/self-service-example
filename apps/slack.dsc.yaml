@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: Slack
     description: Team chat with channels, huddles and file sharing.
     categories: [Communication]
     icon: icons/slack.svg

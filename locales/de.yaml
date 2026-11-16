@@ -1,0 +1,70 @@
+# German texts for furnish. Anything missing here shows in the fallback language or as written
+# in the app and kit files, which are in English (collection.yaml could name another language).
+categories:
+  Communication: Kommunikation
+  Development: Entwicklung
+  Graphics: Grafik
+  Internet: Internet
+  Network: Netzwerk
+  Office: Büro
+  Security: Sicherheit
+  Utilities: Hilfsprogramme
+  Video: Video
+apps:
+  7zip:
+    description: Packprogramm für 7z, zip, rar und viele weitere Formate.
+  acme-vpn:
+    description: Verbindung ins Acme-Firmennetz über OpenVPN. Beim Verbinden meldest du dich mit deinem Acme-Konto an.
+  adobe-acrobat-reader:
+    description: PDF-Dokumente ansehen, unterschreiben und kommentieren.
+  figma:
+    description: Oberflächen gestalten und Prototypen bauen, gemeinsam in Echtzeit.
+  firefox:
+    description: Webbrowser von Mozilla.
+  gimp:
+    description: Bildbearbeitung für Fotoretusche, Bildmontagen und digitales Malen.
+  git:
+    description: Verteilte Versionsverwaltung.
+  google-chrome:
+    description: Webbrowser von Google.
+  inkscape:
+    description: Vektorgrafikprogramm für Illustrationen, Diagramme, Logos und Icons.
+  keepassxc:
+    description: Passwortmanager, der deine Passwörter in einer verschlüsselten Datenbank aufbewahrt.
+  libreoffice:
+    description: Office-Paket mit Textverarbeitung, Tabellenkalkulation, Präsentationen und mehr.
+  microsoft-teams:
+    description: Chat, Besprechungen und Anrufe für Microsoft 365.
+  openvpn-client:
+    name: OpenVPN-Client
+    description: OpenVPN-Client. OpenVPN unter Windows, Tunnelblick unter macOS, das OpenVPN-Plugin von NetworkManager unter Linux.
+  postman:
+    description: APIs entwickeln, testen und dokumentieren.
+  slack:
+    description: Team-Chat mit Channels, Huddles und Dateiaustausch.
+  thunderbird:
+    description: E-Mail, Kalender und Kontakte.
+  visual-studio-code:
+    description: Code-Editor mit Debugger, Git-Anbindung und Erweiterungen.
+  vlc:
+    description: Mediaplayer für fast jedes Audio- und Videoformat.
+  zoom:
+    description: Videokonferenzen und Webinare.
+kits:
+  office:
+    name: Büro
+    description: Office-Paket, E-Mail und Passwortmanager
+  design-studio:
+    name: Designstudio
+    description: Bildbearbeitung, Vektorgrafik und Oberflächendesign
+  developer:
+    name: Entwicklung
+    description: Versionsverwaltung, Code-Editor und API-Client
+parameters:
+  role:
+    label: Woran arbeitest du?
+    description: Empfiehlt die Apps für deine Rolle.
+    allowedValues:
+      developer: Softwareentwicklung
+      design: Design und Medien
+      office: Büroarbeit

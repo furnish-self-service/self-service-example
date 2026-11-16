@@ -110,6 +110,14 @@ Kits in [`kits/`](kits) group apps users install together. Kits reference apps o
 | [`design-studio`](kits/design-studio.yaml) | `gimp`, `inkscape` | `figma` | |
 | [`developer`](kits/developer.yaml) | `git`, `visual-studio-code` | `postman` | |
 
+## Translations
+
+[`locales/de.yaml`](locales/de.yaml) translates the collection into German: app descriptions, categories, kits, and the role question with its answers. furnish shows these texts to people who use furnish in German. Everyone else sees the English texts from the app and kit files.
+
+To add a language, create `locales/<lang>.yaml` with a language tag such as `fr` or `pt-BR`, and translate as much as you like. Texts you leave out show in the person's fallback language if the collection has it, otherwise in English. `furnish check` warns about names in the file that the collection doesn't have, and counts what is translated.
+
+Apps and kits also have display names: `metadata.furnish.name` in an app file, `name` in a kit file. furnish shows "Google Chrome" for `google-chrome`. Commands, kits and dependencies keep using the file name.
+
 ## Icons
 
 The collection's avatar is set in [`collection.yaml`](collection.yaml), each app's in its `metadata.furnish.icon`, and each kit's in its `icon`. The icons are in [`icons/`](icons), as SVG so they stay sharp at every size.
@@ -141,8 +149,8 @@ Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The col
 
 ## Add an app
 
-1. Create `apps/<app-name>.dsc.yaml`. The file name, without `.dsc.yaml`, becomes the app's name.
-2. Set `metadata.furnish.description` and `metadata.furnish.categories`. The catalog shows both. `metadata.furnish.icon` adds an icon: an SVG, PNG, JPEG or WebP file in this repository, for example in `icons/`.
+1. Create `apps/<app-name>.dsc.yaml`. The file name, without `.dsc.yaml`, becomes the app's ID, which commands use.
+2. Set `metadata.furnish.name`, `metadata.furnish.description` and `metadata.furnish.categories`. The catalog shows them. Add the German description to [`locales/de.yaml`](locales/de.yaml). `metadata.furnish.icon` adds an icon: an SVG, PNG, JPEG or WebP file in this repository, for example in `icons/`.
 3. Under `resources`, list what the app needs in the [DSC v3 configuration format](https://learn.microsoft.com/powershell/dsc/concepts/configuration-documents/overview).
 4. Commit and push. Users get the app with `furnish collection update`.
 

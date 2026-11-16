@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: GIMP
     description: Image editor for photo retouching, image composition and painting.
     categories: [Graphics]
     icon: icons/gimp.svg

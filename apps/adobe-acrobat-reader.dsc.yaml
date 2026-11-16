@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: Adobe Acrobat Reader
     description: View, sign and comment on PDF documents.
     categories: [Office]
     icon: icons/adobe-acrobat-reader.svg

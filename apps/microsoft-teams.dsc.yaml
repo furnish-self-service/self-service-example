@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: Microsoft Teams
     description: Chat, meetings and calls for Microsoft 365.
     categories: [Communication]
     icon: icons/microsoft-teams.svg

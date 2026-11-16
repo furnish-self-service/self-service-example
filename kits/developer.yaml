@@ -1,4 +1,5 @@
 # A developer's first day.
+name: Developer
 description: Version control, a code editor and an API client
 categories: [Development]
 icon: icons/developer.svg

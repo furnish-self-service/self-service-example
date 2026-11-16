@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: Inkscape
     description: Vector graphics editor for illustrations, diagrams, logos and icons.
     categories: [Graphics]
     icon: icons/inkscape.svg

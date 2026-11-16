@@ -1,4 +1,5 @@
 # What everyone in the office needs.
+name: Office
 description: Office suite, email and a password manager
 categories: [Office]
 icon: icons/office.svg

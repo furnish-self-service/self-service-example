@@ -1,6 +1,7 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 metadata:
   furnish:
+    name: OpenVPN client
     description: OpenVPN client. OpenVPN on Windows, Tunnelblick on macOS, NetworkManager's OpenVPN plugin on Linux.
     categories: [Network]
     icon: icons/openvpn-client.svg
