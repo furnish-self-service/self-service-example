@@ -14,7 +14,7 @@ apps:
   7zip:
     description: Packprogramm für 7z, zip, rar und viele weitere Formate.
   acme-vpn:
-    description: Verbindung ins Acme-Firmennetz über OpenVPN. Beim Verbinden meldest du dich mit deinem Acme-Konto an.
+    description: Verbindung ins Acme-Firmennetz über OpenVPN. Beim Verbinden melden Sie sich mit Ihrem Acme-Konto an.
   adobe-acrobat-reader:
     description: PDF-Dokumente ansehen, unterschreiben und kommentieren.
   figma:
@@ -30,7 +30,7 @@ apps:
   inkscape:
     description: Vektorgrafikprogramm für Illustrationen, Diagramme, Logos und Icons.
   keepassxc:
-    description: Passwortmanager, der deine Passwörter in einer verschlüsselten Datenbank aufbewahrt.
+    description: Passwortmanager, der Ihre Passwörter in einer verschlüsselten Datenbank aufbewahrt.
   libreoffice:
     description: Office-Paket mit Textverarbeitung, Tabellenkalkulation, Präsentationen und mehr.
   microsoft-teams:
@@ -62,8 +62,8 @@ kits:
     description: Versionsverwaltung, Code-Editor und API-Client
 parameters:
   role:
-    label: Woran arbeitest du?
-    description: Empfiehlt die Apps für deine Rolle.
+    label: Woran arbeiten Sie?
+    description: Empfiehlt die Apps für Ihre Rolle.
     allowedValues:
       developer: Softwareentwicklung
       design: Design und Medien
