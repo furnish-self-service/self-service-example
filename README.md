@@ -50,7 +50,7 @@ All three systems use the same OpenVPN configuration, [`files/acme.ovpn`](files/
   condition: "[equals(context().os.family, 'Linux')]"
   properties:
     test:
-      command: [/bin/sh, -c, "[ \"$(nmcli -g connection.id connection show id 'Acme VPN')\" = 'Acme VPN' ] && ..."]
+      command: [/bin/sh, -c, "test \"$(nmcli -g connection.id connection show id 'Acme VPN')\" = 'Acme VPN' && ..."]
     set: [/bin/sh, -c, "nmcli connection import type openvpn file /etc/openvpn/acme-vpn.ovpn && ..."]
     remove: [/bin/sh, -c, "nmcli connection delete id 'Acme VPN' && ..."]
 ```
