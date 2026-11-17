@@ -13,8 +13,14 @@ categories:
 apps:
   7zip:
     description: Packprogramm für 7z, zip, rar und viele weitere Formate.
+  acme-git-ssh:
+    name: Acme Git über SSH
+    description: Richtet SSH für den Git-Server von Acme ein, damit Sie mit Ihrem SSH-Schlüssel klonen und pushen können.
   acme-vpn:
     description: Verbindung ins Acme-Firmennetz über OpenVPN. Beim Verbinden melden Sie sich mit Ihrem Acme-Konto an.
+  acme-vscode-proxy:
+    name: Acme-Proxy für VS Code
+    description: Visual Studio Code erreicht das Internet und seine Erweiterungen über den Acme-Proxy.
   adobe-acrobat-reader:
     description: PDF-Dokumente ansehen, unterschreiben und kommentieren.
   figma:

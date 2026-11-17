@@ -1,0 +1,54 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+# SSH settings for Acme's Git server in the user's home folder, the same on every system: a file
+# of its own in ~/.ssh/config.d, the server's host key, and one line in ~/.ssh/config that
+# includes the file. Uninstalling removes all three and keeps the rest of ~/.ssh.
+metadata:
+  furnish:
+    name: Acme Git over SSH
+    description: Sets up SSH for Acme's Git server, so you can clone and push with your SSH key.
+    categories: [Development]
+    icon: icons/acme-git-ssh.svg
+    recommended: "[equals(parameters('role'), 'developer')]"
+    dependencies:
+      - app: git
+resources:
+  - name: SSH folder
+    type: Furnish/Directory
+    properties:
+      path: ~/.ssh
+      private: true
+  # Uninstalling removes the folder if nothing else is in it.
+  - name: SSH configuration folder
+    type: Furnish/Directory
+    dependsOn: ["[resourceId('Furnish/Directory', 'SSH folder')]"]
+    properties:
+      path: ~/.ssh/config.d
+  # EXAMPLE host key: replace it with your server's, as `ssh-keyscan git.acme.example` prints it.
+  - name: Git server host key
+    type: Furnish/File
+    dependsOn: ["[resourceId('Furnish/Directory', 'SSH folder')]"]
+    properties:
+      path: ~/.ssh/acme_known_hosts
+      content: |
+        git.acme.example ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINiQ/a1Iq4w/nMJDmONjIPWp+CO6cctWKWLY8qp04idH
+  # EXAMPLE server: replace git.acme.example with your Git server.
+  - name: Git server settings
+    type: Furnish/File
+    dependsOn: ["[resourceId('Furnish/Directory', 'SSH configuration folder')]"]
+    properties:
+      path: ~/.ssh/config.d/acme.conf
+      content: |
+        Host git.acme.example
+            User git
+            UserKnownHostsFile ~/.ssh/known_hosts ~/.ssh/acme_known_hosts
+            StrictHostKeyChecking yes
+      validate: [ssh, -G, -F, '%s', git.acme.example]
+  # ssh reads an Include only before the first Host or Match line.
+  - name: Include in the SSH configuration
+    type: Furnish/Line
+    dependsOn: ["[resourceId('Furnish/File', 'Git server settings')]"]
+    properties:
+      path: ~/.ssh/config
+      line: Include config.d/acme.conf
+      before: '^\s*(Host|Match)\s'
+      validate: [ssh, -G, -F, '%s', git.acme.example]

@@ -1,0 +1,39 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+# One setting in VS Code's settings.json, which is JSON with comments: the step changes the value
+# of http.proxy and keeps the other settings and the comments. The file is in another folder on
+# each system. Uninstalling removes the setting.
+metadata:
+  furnish:
+    name: Acme proxy for VS Code
+    description: Lets Visual Studio Code reach the internet and its extensions through the Acme proxy.
+    categories: [Development, Network]
+    icon: icons/acme-vscode-proxy.svg
+    recommended: "[equals(parameters('role'), 'developer')]"
+    dependencies:
+      - app: visual-studio-code
+resources:
+  # EXAMPLE proxy: replace proxy.acme.example:8080 with your own.
+  - name: VS Code proxy (Windows)
+    type: Furnish/Value
+    condition: "[equals(context().os.family, 'Windows')]"
+    properties:
+      path: ~/AppData/Roaming/Code/User/settings.json
+      format: jsonc
+      location: "$['http.proxy']"
+      value: http://proxy.acme.example:8080
+  - name: VS Code proxy (macOS)
+    type: Furnish/Value
+    condition: "[equals(context().os.family, 'macOS')]"
+    properties:
+      path: ~/Library/Application Support/Code/User/settings.json
+      format: jsonc
+      location: "$['http.proxy']"
+      value: http://proxy.acme.example:8080
+  - name: VS Code proxy (Linux)
+    type: Furnish/Value
+    condition: "[equals(context().os.family, 'Linux')]"
+    properties:
+      path: ~/.config/Code/User/settings.json
+      format: jsonc
+      location: "$['http.proxy']"
+      value: http://proxy.acme.example:8080
