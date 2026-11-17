@@ -25,36 +25,66 @@ An example app collection for [furnish](https://github.com/furnish-self-service/
 | `figma` | Graphics | Design and media | `Figma.Figma` | `figma` | – |
 | `openvpn-client` | Network | | `OpenVPNTechnologies.OpenVPN` | `tunnelblick` | `NetworkManager-openvpn` |
 | `acme-vpn` | Network | Everyone | configuration file | Tunnelblick configuration | NetworkManager connection |
+| `acme-git-ssh` | Development | Software development | SSH configuration | SSH configuration | SSH configuration |
+| `acme-vscode-proxy` | Development, Network | Software development | VS Code setting | VS Code setting | VS Code setting |
 
-All apps except `acme-vpn` use the `Furnish/Package` resource. It's bundled with furnish and installs packages with winget on Windows, Homebrew on macOS, and on Linux with the distribution's package manager or Nix. Apps marked – on Linux aren't in the distributions' own repositories; without a resource for Linux, furnish shows them as not available there.
+The apps that install software use the `Furnish/Package` resource. It's bundled with furnish and installs packages with winget on Windows, Homebrew on macOS, and on Linux with the distribution's package manager or Nix. Apps marked – on Linux aren't in the distributions' own repositories; without a resource for Linux, furnish shows them as not available there. The three `acme-` apps install no software. They set up configuration for a fictional company with furnish's configuration resources.
 
 ## Configurations, not only packages
 
+furnish's configuration resources write folders, files, single lines and single values, and run commands for settings that a tool applies itself. Each of them can also remove what it set up, so uninstalling an app made of them needs no extra steps. Paths that start with `~/` lead to the home folder on every system.
+
+### A VPN connection
+
 [`apps/acme-vpn.dsc.yaml`](apps/acme-vpn.dsc.yaml) sets up a VPN connection to a fictional company network. It installs no package itself. It depends on `openvpn-client`, which installs OpenVPN on Windows, Tunnelblick on macOS and NetworkManager's OpenVPN plugin on Linux. Uninstalling `acme-vpn` removes the connection and keeps the client.
 
-All three systems use the same OpenVPN configuration. It is written once in the file, under the YAML anchor `&ovpn`, and used again as `*ovpn`:
+All three systems use the same OpenVPN configuration, [`files/acme.ovpn`](files/acme.ovpn). `Furnish/File` copies it from the collection with `source`:
 
-- Windows: `Microsoft.Filesystem.File/Content` writes it to `C:\Program Files\OpenVPN\config\acme.ovpn`. People connect with OpenVPN GUI.
-- macOS: `Microsoft.DSC.Transitional/RunCommandOnSet` writes a Tunnelblick configuration and installs it with Tunnelblick's installer.
-- Linux: `File/Content` writes the file to `/etc/openvpn`, and `RunCommandOnSet` imports it into NetworkManager as "Acme VPN".
-
-The configuration is an example: replace the server `vpn.acme.example` and the CA certificate with your own. It contains no private keys. People sign in with their name and password when they connect (`auth-user-pass`). The app writes to system folders, so it needs administrator rights. People without them install it through the furnish service, from a collection your organization presets; an administrator can also install it as themselves and types their password. On macOS the service installs Tunnelblick with Homebrew, as the administrator account that owns Homebrew; see [macOS: the service and Homebrew](https://github.com/furnish-self-service/furnish/blob/main/docs/site/admins.md#macos-the-service-and-homebrew).
-
-`File/Content` doesn't delete files, and `RunCommandOnSet` runs its command on every install. So furnish can't uninstall the app by itself. The app lists its own removal steps under `metadata.furnish.uninstall`, and furnish runs them to uninstall it:
+- Windows: `Furnish/File` writes it to `C:\Program Files\OpenVPN\config\acme.ovpn`. People connect with OpenVPN GUI.
+- macOS: `Furnish/Directory` and `Furnish/File` write it to `/Library/Application Support/Acme VPN`. `Furnish/Command` builds a Tunnelblick configuration from it and installs it with Tunnelblick's installer, tells from the files' dates whether Tunnelblick has the current version, and deletes it on uninstall.
+- Linux: `Furnish/File` writes the file to `/etc/openvpn`. `Furnish/Command` imports it into NetworkManager as "Acme VPN" and deletes it on uninstall. Users can't read NetworkManager's connection files, so after each import the command writes a stamp file with the profile's date. Its test checks with `nmcli` that the connection exists and that the profile isn't newer than the stamp, so a changed profile is imported again.
 
 ```yaml
-metadata:
-  furnish:
-    uninstall:
-      - name: delete the NetworkManager connection
-        type: Microsoft.DSC.Transitional/RunCommandOnSet
-        condition: "[equals(context().os.family, 'Linux')]"
-        properties:
-          executable: /bin/sh
-          arguments: [-c, "nmcli connection delete id 'Acme VPN' >/dev/null 2>&1; rm -f /etc/openvpn/acme-vpn.ovpn"]
+- name: NetworkManager connection
+  type: Furnish/Command
+  condition: "[equals(context().os.family, 'Linux')]"
+  properties:
+    test:
+      command: [/bin/sh, -c, "test \"$(nmcli -g connection.id connection show id 'Acme VPN')\" = 'Acme VPN' && ..."]
+    set: [/bin/sh, -c, "nmcli connection import type openvpn file /etc/openvpn/acme-vpn.ovpn && ..."]
+    remove: [/bin/sh, -c, "nmcli connection delete id 'Acme VPN' && ..."]
 ```
 
-Without removal steps, furnish wouldn't offer to uninstall the app. `File/Content` and `RunCommandOnSet` are DSC's own resources. furnish ships them, so computers don't need DSC installed.
+The configuration is an example: replace the server `vpn.acme.example` and the CA certificate with your own. It contains no private keys. People sign in with their name and password when they connect (`auth-user-pass`). The app writes to system folders, so it needs administrator rights. People install it through the furnish service, from a collection your organization presets. On macOS the service installs Tunnelblick with Homebrew, as the administrator account that owns Homebrew; see [macOS: the service and Homebrew](https://github.com/furnish-self-service/furnish/blob/main/docs/site/admins.md#macos-the-service-and-homebrew).
+
+### SSH access to a Git server
+
+[`apps/acme-git-ssh.dsc.yaml`](apps/acme-git-ssh.dsc.yaml) sets up SSH for the fictional Git server `git.acme.example` in the user's home folder. `Furnish/File` writes the server's settings to `~/.ssh/config.d/acme.conf` and its host key to `~/.ssh/acme_known_hosts`. `Furnish/Line` adds `Include config.d/acme.conf` to `~/.ssh/config`, before the first `Host` or `Match` line, because ssh ignores an `Include` after them. Lines that people wrote themselves stay as they are. Before a file changes, `validate` runs `ssh -G` on the new version, and a file that ssh rejects stays as it was:
+
+```yaml
+- name: Include in the SSH configuration
+  type: Furnish/Line
+  properties:
+    path: ~/.ssh/config
+    line: Include config.d/acme.conf
+    before: '^\s*(Host|Match)\s'
+    validate: [ssh, -G, -F, '%s', git.acme.example]
+```
+
+### One setting in an editor
+
+[`apps/acme-vscode-proxy.dsc.yaml`](apps/acme-vscode-proxy.dsc.yaml) sets the proxy in Visual Studio Code's `settings.json`. `Furnish/Value` changes the one value and keeps the person's other settings and their comments. If someone changes the proxy by hand, furnish shows an update, and installing it again sets the proxy back. Uninstalling removes only this setting.
+
+```yaml
+- name: VS Code proxy (Linux)
+  type: Furnish/Value
+  condition: "[equals(context().os.family, 'Linux')]"
+  properties:
+    path: ~/.config/Code/User/settings.json
+    format: jsonc
+    location: "$['http.proxy']"
+    value: http://proxy.acme.example:8080
+```
 
 ## Package names that differ per OS
 
@@ -145,7 +175,7 @@ The app icons are the vendors' and projects' own, unchanged apart from size opti
 
 The names and logos remain trademarks of their owners; they identify the apps here.
 
-Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The collection's and the kits' icons (`collection.svg`, `office.svg`, `design-studio.svg`, `developer.svg`) and those of `acme-vpn` and `openvpn-client` were drawn for this collection (MIT).
+Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The collection's and the kits' icons (`collection.svg`, `office.svg`, `design-studio.svg`, `developer.svg`) and those of `acme-vpn`, `acme-git-ssh`, `acme-vscode-proxy` and `openvpn-client` were drawn for this collection (MIT).
 
 ## Add an app
 
