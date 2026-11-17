@@ -47,6 +47,7 @@ resources:
   # passes when the copy exists and the file in Temp/ isn't newer, so a changed profile is
   # installed again. chown: the folders the step above created get their group from
   # /Library/Application Support when Tunnelblick hasn't created its own folder yet.
+  # `remove` succeeds when there is nothing to delete.
   - name: Tunnelblick installs the configuration
     type: Furnish/Command
     condition: "[equals(context().os.family, 'macOS')]"
@@ -79,11 +80,15 @@ resources:
     properties:
       path: /etc/openvpn/acme-vpn.ovpn
       source: files/acme.ovpn
+      # Readable by everyone for now: furnish reads the file as the user to tell the app's status,
+      # and fails on a file only root may read. Mode 600 once furnish handles that.
       mode: '644'
   # `nmcli connection import` copies the CA certificate into the home folder of whoever runs it
   # (root, through the furnish service). The connection's vpn.data says where
   # ("ca = /root/.local/share/networkmanagement/certificates/nm-openvpn/acme-vpn-ca.pem, ..."),
-  # so `remove` reads it before it deletes the connection.
+  # so it is read before the connection is deleted. `set` first deletes an earlier connection,
+  # also one an interrupted import left under the file's name, so there is only ever one.
+  # `remove` succeeds when there is nothing to delete.
   - name: NetworkManager connection
     type: Furnish/Command
     condition: "[equals(context().os.family, 'Linux')]"
@@ -96,14 +101,17 @@ resources:
         - /bin/sh
         - -c
         - >-
-          nmcli connection delete id 'Acme VPN' >/dev/null 2>&1;
+          for id in 'Acme VPN' acme-vpn; do
+          ca=$(nmcli -g vpn.data connection show id "$id" 2>/dev/null | tr ',' '\n' | sed -n 's/^ *ca = //p');
+          if [ -n "$(nmcli -g connection.id connection show id "$id" 2>/dev/null)" ]; then nmcli connection delete id "$id" >/dev/null || exit 1; fi;
+          case "$ca" in */networkmanagement/certificates/nm-openvpn/*) rm -f "$ca" ;; esac;
+          done;
           nmcli connection import type openvpn file /etc/openvpn/acme-vpn.ovpn &&
-          nmcli connection modify acme-vpn connection.id 'Acme VPN' &&
-          nmcli connection reload
+          nmcli connection modify id acme-vpn connection.id 'Acme VPN'
       remove:
         - /bin/sh
         - -c
         - >-
-          ca=$(nmcli -g vpn.data connection show id 'Acme VPN' | tr ',' '\n' | sed -n 's/^ *ca = //p');
-          nmcli connection delete id 'Acme VPN' &&
+          ca=$(nmcli -g vpn.data connection show id 'Acme VPN' 2>/dev/null | tr ',' '\n' | sed -n 's/^ *ca = //p');
+          if [ -n "$(nmcli -g connection.id connection show id 'Acme VPN' 2>/dev/null)" ]; then nmcli connection delete id 'Acme VPN' >/dev/null || exit 1; fi;
           case "$ca" in */networkmanagement/certificates/nm-openvpn/*) rm -f "$ca" ;; esac
