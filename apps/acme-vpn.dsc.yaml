@@ -26,32 +26,33 @@ resources:
 
   # macOS: Tunnelblick installs a configuration (.tblk) from its Temp folder, which must belong
   # to root:wheel and not be writable by others. Its installer runs as root without asking and
-  # copies the .tblk to Shared/, leaving the one in Temp/:
-  # https://www.tunnelblick.net/cInstallFromCommandLine.html
-  - name: Tunnelblick configuration folder
+  # copies the .tblk to Shared/: https://www.tunnelblick.net/cInstallFromCommandLine.html
+  # Tunnelblick makes Temp/ readable only by root, and furnish tells the app's status as the
+  # user, so the profile waits in a folder of its own, and the install step builds the .tblk
+  # in Temp/ from it.
+  - name: Tunnelblick profile folder
     type: Furnish/Directory
     condition: "[equals(context().os.family, 'macOS')]"
     properties:
-      path: /Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk
+      path: /Library/Application Support/Acme VPN
       mode: '755'
-  - name: Tunnelblick configuration file
+  - name: Tunnelblick profile
     type: Furnish/File
     condition: "[equals(context().os.family, 'macOS')]"
-    dependsOn: ["[resourceId('Furnish/Directory', 'Tunnelblick configuration folder')]"]
+    dependsOn: ["[resourceId('Furnish/Directory', 'Tunnelblick profile folder')]"]
     properties:
-      path: /Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk/Contents/Resources/config.ovpn
+      path: /Library/Application Support/Acme VPN/config.ovpn
       source: files/acme.ovpn
       mode: '644'
   # Only root may read Tunnelblick's copy in Shared/, but anyone may look at its date. The test
-  # passes when the copy exists and the file in Temp/ isn't newer, so a changed profile is
-  # installed again. chown: the folders the step above created get their group from
-  # /Library/Application Support when Tunnelblick hasn't created its own folder yet.
-  # `present`: the configuration is installed, maybe from an older profile, so the app shows an
-  # update and can be uninstalled. `remove` succeeds when there is nothing to delete.
+  # passes when the copy exists and the profile isn't newer, so a changed profile is installed
+  # again (cp -p keeps the profile's date). `present`: the configuration is installed, maybe from
+  # an older profile, so the app shows an update and can be uninstalled. `remove` succeeds when
+  # there is nothing to delete.
   - name: Tunnelblick installs the configuration
     type: Furnish/Command
     condition: "[equals(context().os.family, 'macOS')]"
-    dependsOn: ["[resourceId('Furnish/File', 'Tunnelblick configuration file')]"]
+    dependsOn: ["[resourceId('Furnish/File', 'Tunnelblick profile')]"]
     properties:
       test:
         command:
@@ -59,16 +60,22 @@ resources:
           - -c
           - 'test -f "$2" && test ! "$1" -nt "$2"'
           - sh
-          - /Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk/Contents/Resources/config.ovpn
+          - /Library/Application Support/Acme VPN/config.ovpn
           - /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk/Contents/Resources/config.ovpn
       present:
         command: [/bin/test, -d, /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk]
       set:
         - /bin/sh
         - -c
-        - 'chown -R root:wheel "$1" && chmod -R go-w "$1" && /Applications/Tunnelblick.app/Contents/Resources/installer 0x7000 "$1"'
+        - >-
+          tblk="/Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk";
+          rm -rf "$tblk" && mkdir -p "$tblk/Contents/Resources" &&
+          cp -p "$1" "$tblk/Contents/Resources/config.ovpn" &&
+          chown -R root:wheel "$tblk" && chmod -R go-w "$tblk" &&
+          /Applications/Tunnelblick.app/Contents/Resources/installer 0x7000 "$tblk" &&
+          rm -rf "$tblk"
         - sh
-        - /Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk
+        - /Library/Application Support/Acme VPN/config.ovpn
       remove:
         - /bin/rm
         - -rf
