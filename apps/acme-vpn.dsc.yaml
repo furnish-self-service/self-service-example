@@ -92,13 +92,18 @@ resources:
       mode: '600'
   # `nmcli connection import` copies the CA certificate into the home folder of whoever runs it
   # (root, through the furnish service). The connection's vpn.data says where
-  # ("ca = /root/.local/share/networkmanagement/certificates/nm-openvpn/acme-vpn-ca.pem, ..."),
-  # so it is read before the connection is deleted. `set` first deletes an earlier connection,
+  # ("ca = /root/.local/share/networkmanagement/certificates/nm-openvpn/acme-vpn-ca.pem, ...", or
+  # /root/.cert/nm-openvpn/ where ~/.local/share doesn't exist), so it is read before the
+  # connection is deleted. `set` first deletes an earlier connection,
   # also one an interrupted import left under the file's name, so there is only ever one.
   # The stamp /etc/openvpn/acme-vpn.imported records which version of the profile NetworkManager
   # imported: it has the profile's date. Users can't read NetworkManager's connection files, nor
   # see their dates, and furnish runs the test as the user. Comparing dates needs no read access
-  # to the profile, only to /etc/openvpn. The test fails when the connection or the stamp is
+  # to the profile, only to /etc/openvpn. `nmcli connection export` can't stand in for the stamp
+  # with `test.file`: it writes the options in another order, quotes values ('vpn.acme.example'),
+  # puts the path of the copied CA certificate in place of the embedded one, leaves out options
+  # such as resolv-retry, remote-cert-tls and verb, and adds auth-nocache, script-security, user
+  # and group. The test fails when the connection or the stamp is
   # missing or the profile is newer than the stamp, so a changed profile is imported again.
   # `present`: the connection exists, maybe from an older profile, so the app shows an update and
   # can be uninstalled. `remove` succeeds when there is nothing to delete.
@@ -127,7 +132,7 @@ resources:
           for id in 'Acme VPN' acme-vpn; do
           ca=$(nmcli -g vpn.data connection show id "$id" 2>/dev/null | tr ',' '\n' | sed -n 's/^ *ca = //p');
           if [ -n "$(nmcli -g connection.id connection show id "$id" 2>/dev/null)" ]; then nmcli connection delete id "$id" >/dev/null || exit 1; fi;
-          case "$ca" in */networkmanagement/certificates/nm-openvpn/*) rm -f "$ca" ;; esac;
+          case "$ca" in */networkmanagement/certificates/nm-openvpn/* | */.cert/nm-openvpn/*) rm -f "$ca" ;; esac;
           done;
           nmcli connection import type openvpn file /etc/openvpn/acme-vpn.ovpn &&
           nmcli connection modify id acme-vpn connection.id 'Acme VPN' &&
@@ -139,5 +144,5 @@ resources:
         - >-
           ca=$(nmcli -g vpn.data connection show id 'Acme VPN' 2>/dev/null | tr ',' '\n' | sed -n 's/^ *ca = //p');
           if [ -n "$(nmcli -g connection.id connection show id 'Acme VPN' 2>/dev/null)" ]; then nmcli connection delete id 'Acme VPN' >/dev/null || exit 1; fi;
-          case "$ca" in */networkmanagement/certificates/nm-openvpn/*) rm -f "$ca" ;; esac;
+          case "$ca" in */networkmanagement/certificates/nm-openvpn/* | */.cert/nm-openvpn/*) rm -f "$ca" ;; esac;
           rm -f /etc/openvpn/acme-vpn.imported
