@@ -1,7 +1,9 @@
 $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
-# Sets up the connection "Acme VPN" with one OpenVPN configuration on every system. The client
-# comes from the app openvpn-client. Writing to system folders needs administrator rights, so
-# install this app through the furnish service (a collection your organization presets).
+# Sets up the connection "Acme VPN" with one OpenVPN configuration, files/acme.ovpn, on every
+# system. The client comes from the app openvpn-client. Writing to system folders needs
+# administrator rights, so install this app through the furnish service (a collection your
+# organization presets). furnish tells the app's status as the user, also with the service, so
+# every file it checks must be readable by everyone.
 metadata:
   furnish:
     name: Acme VPN
@@ -12,132 +14,96 @@ metadata:
     dependencies:
       - app: openvpn-client
         required: true
-    # The resources below can't remove what they set up (File/Content doesn't delete files,
-    # RunCommandOnSet runs on every install), so uninstalling runs these steps instead.
-    uninstall:
-      - name: delete the configuration (Windows)
-        type: Microsoft.DSC.Transitional/RunCommandOnSet
-        condition: "[equals(context().os.family, 'Windows')]"
-        properties:
-          executable: powershell.exe
-          arguments: [-NoProfile, -Command, "Remove-Item -LiteralPath 'C:\\Program Files\\OpenVPN\\config\\acme.ovpn' -ErrorAction SilentlyContinue"]
-      # As root through the furnish service; through sudo for an admin installing as themselves,
-      # see "Tunnelblick configuration".
-      - name: delete the Tunnelblick configuration
-        type: Microsoft.DSC.Transitional/RunCommandOnSet
-        condition: "[equals(context().os.family, 'macOS')]"
-        properties:
-          executable: /bin/sh
-          arguments:
-            - -c
-            - 'as=; [ "$(id -u)" = 0 ] || as=sudo; $as rm -rf "$1" "$2"'
-            - sh
-            - /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk
-            - /Library/Application Support/Acme VPN
-      # `nmcli connection import` copied the CA certificate into the home folder of whoever ran
-      # it (root, through the furnish service). The connection's vpn.data says where
-      # ("ca = /root/.local/share/networkmanagement/certificates/nm-openvpn/acme-vpn-ca.pem, ..."),
-      # so it is read before the connection is deleted.
-      - name: delete the NetworkManager connection
-        type: Microsoft.DSC.Transitional/RunCommandOnSet
-        condition: "[equals(context().os.family, 'Linux')]"
-        properties:
-          executable: /bin/sh
-          arguments:
-            - -c
-            - >-
-              ca=$(nmcli -g vpn.data connection show id 'Acme VPN' 2>/dev/null | tr ',' '\n' | sed -n 's/^ *ca = //p');
-              nmcli connection delete id 'Acme VPN' >/dev/null 2>&1;
-              case "$ca" in */networkmanagement/certificates/nm-openvpn/*) rm -f "$ca" ;; esac;
-              rm -f /etc/openvpn/acme-vpn.ovpn
 resources:
   # Windows: in config\, not config-auto\. OpenVPN GUI lists the configurations in config\ and
   # asks for the user's name and password when they connect (auth-user-pass). The service that
   # starts config-auto\ at boot has nobody to ask.
   - name: OpenVPN configuration (Windows)
-    type: Microsoft.Filesystem.File/Content
+    type: Furnish/File
     condition: "[equals(context().os.family, 'Windows')]"
     properties:
       path: C:\Program Files\OpenVPN\config\acme.ovpn
-      # EXAMPLE configuration: replace the server and the CA certificate with your own. It has no
-      # private keys: people sign in with auth-user-pass. The other systems use the same text
-      # through the YAML alias *ovpn.
-      content: &ovpn |
-        # EXAMPLE: Acme VPN, replace vpn.acme.example and the CA certificate below.
-        client
-        dev tun
-        proto udp
-        remote vpn.acme.example 1194
-        resolv-retry infinite
-        nobind
-        persist-key
-        persist-tun
-        remote-cert-tls server
-        auth-user-pass
-        cipher AES-256-GCM
-        verb 3
-        <ca>
-        -----BEGIN CERTIFICATE-----
-        EXAMPLE-ONLY-REPLACE-WITH-YOUR-ORGANIZATIONS-CA-CERTIFICATE
-        -----END CERTIFICATE-----
-        </ca>
+      source: files/acme.ovpn
+
   # macOS: Tunnelblick installs a configuration (.tblk) from its Temp folder, which must belong
-  # to root:wheel and not be writable by others. Its installer runs as root without asking:
-  # https://www.tunnelblick.net/cInstallFromCommandLine.html. The .tblk is written by the same
-  # command because Tunnelblick's documentation doesn't say whether the installer keeps the
-  # Temp copy. Untested: what Tunnelblick shows when it starts for the first time.
-  # Through the furnish service, these commands run as root and need no sudo (the service runs
-  # Homebrew, which installs Tunnelblick for openvpn-client, as the account that owns it). An
-  # administrator can also install the app as themselves, without the service: then furnish
-  # runs as that user, and the commands that need root go through sudo, which asks for their
-  # password. `as` is empty for root and `sudo` otherwise.
-  - name: Tunnelblick configuration
-    type: Microsoft.DSC.Transitional/RunCommandOnSet
+  # to root:wheel and not be writable by others. Its installer runs as root without asking and
+  # copies the .tblk to Shared/, leaving the one in Temp/:
+  # https://www.tunnelblick.net/cInstallFromCommandLine.html
+  - name: Tunnelblick configuration folder
+    type: Furnish/Directory
     condition: "[equals(context().os.family, 'macOS')]"
     properties:
-      executable: /bin/sh
-      arguments:
+      path: /Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk
+      mode: '755'
+  - name: Tunnelblick configuration file
+    type: Furnish/File
+    condition: "[equals(context().os.family, 'macOS')]"
+    dependsOn: ["[resourceId('Furnish/Directory', 'Tunnelblick configuration folder')]"]
+    properties:
+      path: /Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk/Contents/Resources/config.ovpn
+      source: files/acme.ovpn
+      mode: '644'
+  # Only root may read Tunnelblick's copy in Shared/, but anyone may look at its date. The test
+  # passes when the copy exists and the file in Temp/ isn't newer, so a changed profile is
+  # installed again. chown: the folders the step above created get their group from
+  # /Library/Application Support when Tunnelblick hasn't created its own folder yet.
+  - name: Tunnelblick installs the configuration
+    type: Furnish/Command
+    condition: "[equals(context().os.family, 'macOS')]"
+    dependsOn: ["[resourceId('Furnish/File', 'Tunnelblick configuration file')]"]
+    properties:
+      test:
+        command:
+          - /bin/sh
+          - -c
+          - '[ -f "$2" ] && [ ! "$1" -nt "$2" ]'
+          - sh
+          - /Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk/Contents/Resources/config.ovpn
+          - /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk/Contents/Resources/config.ovpn
+      set:
+        - /bin/sh
         - -c
-        - >-
-          set -e;
-          as=; [ "$(id -u)" = 0 ] || as=sudo;
-          tblk="/Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk";
-          $as mkdir -p "$tblk/Contents/Resources" "/Library/Application Support/Acme VPN";
-          printf '%s' "$1" | $as tee "$tblk/Contents/Resources/config.ovpn" >/dev/null;
-          $as cp "$tblk/Contents/Resources/config.ovpn" "/Library/Application Support/Acme VPN/acme.ovpn";
-          $as chown -R root:wheel "$tblk"; $as chmod -R go-w "$tblk";
-          $as /Applications/Tunnelblick.app/Contents/Resources/installer 0x7000 "$tblk"
+        - 'chown -R root:wheel "$1" && chmod -R go-w "$1" && /Applications/Tunnelblick.app/Contents/Resources/installer 0x7000 "$1"'
         - sh
-        - *ovpn
-  # Tells whether the configuration is installed. Not Tunnelblick's copy in Shared/: only root
-  # may read it, and furnish checks the status as the user, also with the service. A copy anyone
-  # can read, written by the command above (File/Content leaves an existing file with this
-  # content alone).
-  - name: Acme VPN configuration (macOS)
-    type: Microsoft.Filesystem.File/Content
-    condition: "[equals(context().os.family, 'macOS')]"
-    dependsOn: ["[resourceId('Microsoft.DSC.Transitional/RunCommandOnSet', 'Tunnelblick configuration')]"]
-    properties:
-      path: /Library/Application Support/Acme VPN/acme.ovpn
-      content: *ovpn
-  # Linux: NetworkManager imports the configuration as the connection "Acme VPN". The file
-  # also tells furnish whether the app is installed.
+        - /Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk
+      remove:
+        - /bin/rm
+        - -rf
+        - /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk
+        - /Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk
+
+  # Linux: NetworkManager imports the configuration as the connection "Acme VPN".
   - name: OpenVPN configuration (Linux)
-    type: Microsoft.Filesystem.File/Content
+    type: Furnish/File
     condition: "[equals(context().os.family, 'Linux')]"
     properties:
       path: /etc/openvpn/acme-vpn.ovpn
-      content: *ovpn
+      source: files/acme.ovpn
+      mode: '644'
+  # `nmcli connection import` copies the CA certificate into the home folder of whoever runs it
+  # (root, through the furnish service). The connection's vpn.data says where
+  # ("ca = /root/.local/share/networkmanagement/certificates/nm-openvpn/acme-vpn-ca.pem, ..."),
+  # so `remove` reads it before it deletes the connection.
   - name: NetworkManager connection
-    type: Microsoft.DSC.Transitional/RunCommandOnSet
+    type: Furnish/Command
     condition: "[equals(context().os.family, 'Linux')]"
-    dependsOn: ["[resourceId('Microsoft.Filesystem.File/Content', 'OpenVPN configuration (Linux)')]"]
+    dependsOn: ["[resourceId('Furnish/File', 'OpenVPN configuration (Linux)')]"]
     properties:
-      executable: /bin/sh
-      arguments:
+      test:
+        command: [nmcli, -g, connection.id, connection, show, id, Acme VPN]
+        output: Acme VPN
+      set:
+        - /bin/sh
         - -c
         - >-
           nmcli connection delete id 'Acme VPN' >/dev/null 2>&1;
           nmcli connection import type openvpn file /etc/openvpn/acme-vpn.ovpn &&
           nmcli connection modify acme-vpn connection.id 'Acme VPN' &&
           nmcli connection reload
+      remove:
+        - /bin/sh
+        - -c
+        - >-
+          ca=$(nmcli -g vpn.data connection show id 'Acme VPN' | tr ',' '\n' | sed -n 's/^ *ca = //p');
+          nmcli connection delete id 'Acme VPN' &&
+          case "$ca" in */networkmanagement/certificates/nm-openvpn/*) rm -f "$ca" ;; esac
