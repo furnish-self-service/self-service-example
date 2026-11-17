@@ -42,7 +42,7 @@ All three systems use the same OpenVPN configuration, [`files/acme.ovpn`](files/
 
 - Windows: `Furnish/File` writes it to `C:\Program Files\OpenVPN\config\acme.ovpn`. People connect with OpenVPN GUI.
 - macOS: `Furnish/Directory` and `Furnish/File` write a Tunnelblick configuration into Tunnelblick's `Temp` folder. `Furnish/Command` installs it with Tunnelblick's installer, tells from the files' dates whether Tunnelblick has the current version, and deletes it on uninstall.
-- Linux: `Furnish/File` writes the file to `/etc/openvpn`. `Furnish/Command` imports it into NetworkManager as "Acme VPN", and deletes it on uninstall. Users can't read NetworkManager's connection files, so after each import the command writes a stamp file with the profile's date. Its test checks with `nmcli` that the connection exists and that the profile isn't newer than the stamp, so a changed profile is imported again.
+- Linux: `Furnish/File` writes the file to `/etc/openvpn`. `Furnish/Command` imports it into NetworkManager as "Acme VPN" and deletes it on uninstall. Users can't read NetworkManager's connection files, so after each import the command writes a stamp file with the profile's date. Its test checks with `nmcli` that the connection exists and that the profile isn't newer than the stamp, so a changed profile is imported again.
 
 ```yaml
 - name: NetworkManager connection

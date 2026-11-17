@@ -2,8 +2,7 @@ $schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
 # Sets up the connection "Acme VPN" with one OpenVPN configuration, files/acme.ovpn, on every
 # system. The client comes from the app openvpn-client. Writing to system folders needs
 # administrator rights, so install this app through the furnish service (a collection your
-# organization presets). furnish tells the app's status as the user, also with the service, so
-# every file it checks must be readable by everyone.
+# organization presets). furnish tells the app's status as the user, also with the service.
 metadata:
   furnish:
     name: Acme VPN
@@ -47,7 +46,8 @@ resources:
   # passes when the copy exists and the file in Temp/ isn't newer, so a changed profile is
   # installed again. chown: the folders the step above created get their group from
   # /Library/Application Support when Tunnelblick hasn't created its own folder yet.
-  # `remove` succeeds when there is nothing to delete.
+  # `present`: the configuration is installed, maybe from an older profile, so the app shows an
+  # update and can be uninstalled. `remove` succeeds when there is nothing to delete.
   - name: Tunnelblick installs the configuration
     type: Furnish/Command
     condition: "[equals(context().os.family, 'macOS')]"
@@ -61,6 +61,8 @@ resources:
           - sh
           - /Library/Application Support/Tunnelblick/Temp/Acme VPN.tblk/Contents/Resources/config.ovpn
           - /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk/Contents/Resources/config.ovpn
+      present:
+        command: [/bin/test, -d, /Library/Application Support/Tunnelblick/Shared/Acme VPN.tblk]
       set:
         - /bin/sh
         - -c
@@ -80,9 +82,7 @@ resources:
     properties:
       path: /etc/openvpn/acme-vpn.ovpn
       source: files/acme.ovpn
-      # Readable by everyone for now: furnish reads the file as the user to tell the app's status,
-      # and fails on a file only root may read. Mode 600 once furnish handles that.
-      mode: '644'
+      mode: '600'
   # `nmcli connection import` copies the CA certificate into the home folder of whoever runs it
   # (root, through the furnish service). The connection's vpn.data says where
   # ("ca = /root/.local/share/networkmanagement/certificates/nm-openvpn/acme-vpn-ca.pem, ..."),
@@ -90,9 +90,11 @@ resources:
   # also one an interrupted import left under the file's name, so there is only ever one.
   # The stamp /etc/openvpn/acme-vpn.imported records which version of the profile NetworkManager
   # imported: it has the profile's date. Users can't read NetworkManager's connection files, nor
-  # see their dates, and furnish runs the test as the user. The test fails when the connection or
-  # the stamp is missing or the profile is newer than the stamp, so a changed profile is imported
-  # again. `remove` succeeds when there is nothing to delete.
+  # see their dates, and furnish runs the test as the user. Comparing dates needs no read access
+  # to the profile, only to /etc/openvpn. The test fails when the connection or the stamp is
+  # missing or the profile is newer than the stamp, so a changed profile is imported again.
+  # `present`: the connection exists, maybe from an older profile, so the app shows an update and
+  # can be uninstalled. `remove` succeeds when there is nothing to delete.
   - name: NetworkManager connection
     type: Furnish/Command
     condition: "[equals(context().os.family, 'Linux')]"
@@ -108,6 +110,9 @@ resources:
           - sh
           - /etc/openvpn/acme-vpn.ovpn
           - /etc/openvpn/acme-vpn.imported
+      present:
+        command: [nmcli, -g, connection.id, connection, show, id, Acme VPN]
+        output: Acme VPN
       set:
         - /bin/sh
         - -c
