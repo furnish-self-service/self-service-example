@@ -22,6 +22,7 @@ resources:
     condition: "[equals(context().os.family, 'Linux')]"
     properties:
       name: NetworkManager-openvpn # Fedora (dnf), openSUSE (zypper)
-      aptName: network-manager-openvpn
-      pacmanName: networkmanager-openvpn
-      nixName: networkmanager-openvpn
+      namesByManager:
+        apt: network-manager-openvpn
+        pacman: networkmanager-openvpn
+        nix: networkmanager-openvpn

@@ -7,14 +7,10 @@ metadata:
     icon: icons/libreoffice.svg
     recommended: "[equals(parameters('role'), 'office')]"
 resources:
-  - name: libreoffice (winget)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: TheDocumentFoundation.LibreOffice
   - name: libreoffice
     type: Furnish/Package
-    condition: "[not(equals(context().os.family, 'Windows'))]"
     properties:
       name: libreoffice
-      pacmanName: libreoffice-fresh   # Arch splits it into libreoffice-fresh and libreoffice-still
+      namesByManager:
+        pacman: libreoffice-fresh   # Arch splits it into libreoffice-fresh and libreoffice-still
+        winget: TheDocumentFoundation.LibreOffice
