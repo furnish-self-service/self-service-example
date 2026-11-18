@@ -6,15 +6,11 @@ metadata:
     categories: [Utilities]
     icon: icons/7zip.svg
 resources:
-  - name: 7zip (winget)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: 7zip.7zip
   - name: 7zip
     type: Furnish/Package
-    condition: "[not(equals(context().os.family, 'Windows'))]"
     properties:
       name: 7zip
-      brewName: sevenzip
-      nixName: _7zz
+      namesByManager:
+        brew: sevenzip
+        nix: _7zz
+        winget: 7zip.7zip

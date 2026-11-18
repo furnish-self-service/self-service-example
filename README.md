@@ -106,7 +106,7 @@ resources:
 
 `context().os.family` returns `Windows`, `macOS` or `Linux`.
 
-Some package managers name a package differently. Properties such as `pacmanName` or `brewName` override `name` for one of them: [`apps/libreoffice.dsc.yaml`](apps/libreoffice.dsc.yaml) installs `libreoffice-fresh` on Arch, [`apps/7zip.dsc.yaml`](apps/7zip.dsc.yaml) `sevenzip` from Homebrew.
+Use `namesByManager` when package managers use different names for the same app. The LibreOffice app selects `libreoffice-fresh` with pacman, and the 7-Zip app selects `sevenzip` with Homebrew. For a name specific to a Linux distribution, key `namesByDistribution` by its `os-release` ID. [LibreOffice](apps/libreoffice.dsc.yaml) · [7-Zip](apps/7zip.dsc.yaml)
 
 Apps such as [`apps/slack.dsc.yaml`](apps/slack.dsc.yaml) have a resource for Windows and one for macOS only.
 
