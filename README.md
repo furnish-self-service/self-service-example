@@ -19,8 +19,8 @@ An example app collection for [furnish](https://github.com/furnish-self-service/
 | `vlc` | Video | | `VideoLAN.VLC` | `vlc` | `vlc` |
 | `git` | Development | Software development | `Git.Git` | `git` | `git` |
 | `visual-studio-code` | Development | Software development | `Microsoft.VisualStudioCode` | `visual-studio-code` | – |
-| `vim` | Development | | – | – | `vim` |
-| `curl` | Development | | – | – | `curl` |
+| `vim` | Development | Software development on Linux | – | – | `vim` |
+| `curl` | Development | Software development on Linux | – | – | `curl` |
 | `postman` | Development | Software development | `Postman.Postman` | `postman` | – |
 | `gimp` | Graphics | Design and media | `GIMP.GIMP.3` | `gimp` | `gimp` |
 | `inkscape` | Graphics | Design and media | `Inkscape.Inkscape` | `inkscape` | `inkscape` |
@@ -176,7 +176,7 @@ The app icons are the vendors' and projects' own, unchanged apart from size opti
 
 The names and logos remain trademarks of their owners; they identify the apps here.
 
-Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The collection's and the kits' icons (`collection.svg`, `office.svg`, `design-studio.svg`, `developer.svg`) and those of `acme-vpn`, `acme-git-ssh`, `acme-vscode-proxy` and `openvpn-client` were drawn for this collection (MIT).
+Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The collection's and the kits' icons (`collection.svg`, `office.svg`, `design-studio.svg`, `developer.svg`) and those of `vim`, `curl`, `acme-vpn`, `acme-git-ssh`, `acme-vscode-proxy` and `openvpn-client` were drawn for this collection (MIT).
 
 ## Add an app
 

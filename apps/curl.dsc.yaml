@@ -4,6 +4,8 @@ metadata:
     name: curl
     description: Command-line HTTP client for testing APIs on Linux.
     categories: [Development]
+    icon: icons/curl.svg
+    recommended: "[and(equals(context().os.family, 'Linux'), equals(parameters('role'), 'developer'))]"
 resources:
   - name: curl
     type: Furnish/Package

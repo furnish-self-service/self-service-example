@@ -4,6 +4,8 @@ metadata:
     name: Vim
     description: Terminal text editor for editing source code on Linux.
     categories: [Development]
+    icon: icons/vim.svg
+    recommended: "[and(equals(context().os.family, 'Linux'), equals(parameters('role'), 'developer'))]"
 resources:
   - name: vim
     type: Furnish/Package
