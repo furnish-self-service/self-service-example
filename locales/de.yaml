@@ -23,6 +23,8 @@ apps:
     description: Visual Studio Code erreicht das Internet und seine Erweiterungen über den Acme-Proxy.
   adobe-acrobat-reader:
     description: PDF-Dokumente ansehen, unterschreiben und kommentieren.
+  curl:
+    description: HTTP-Client für die Kommandozeile zum Testen von APIs unter Linux.
   figma:
     description: Oberflächen gestalten und Prototypen bauen, gemeinsam in Echtzeit.
   firefox:
@@ -50,6 +52,8 @@ apps:
     description: Team-Chat mit Channels, Huddles und Dateiaustausch.
   thunderbird:
     description: E-Mail, Kalender und Kontakte.
+  vim:
+    description: Texteditor für das Terminal zum Bearbeiten von Quellcode unter Linux.
   visual-studio-code:
     description: Code-Editor mit Debugger, Git-Anbindung und Erweiterungen.
   vlc:

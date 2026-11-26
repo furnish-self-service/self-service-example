@@ -19,6 +19,8 @@ An example app collection for [furnish](https://github.com/furnish-self-service/
 | `vlc` | Video | | `VideoLAN.VLC` | `vlc` | `vlc` |
 | `git` | Development | Software development | `Git.Git` | `git` | `git` |
 | `visual-studio-code` | Development | Software development | `Microsoft.VisualStudioCode` | `visual-studio-code` | – |
+| `vim` | Development | Software development on Linux | – | – | `vim` |
+| `curl` | Development | Software development on Linux | – | – | `curl` |
 | `postman` | Development | Software development | `Postman.Postman` | `postman` | – |
 | `gimp` | Graphics | Design and media | `GIMP.GIMP.3` | `gimp` | `gimp` |
 | `inkscape` | Graphics | Design and media | `Inkscape.Inkscape` | `inkscape` | `inkscape` |
@@ -117,12 +119,14 @@ metadata:
 ## Try it
 
 ```sh
-furnish collection add git@github.com:furnish-self-service/self-service-example.git --option role=developer
+furnish collection add https://github.com/furnish-self-service/self-service-example.git --option role=developer
 furnish list
-furnish install firefox
+furnish install firefox --dry-run
 ```
 
-`furnish install` asks for your sudo password when the package manager needs root.
+The preview shows the selected package manager, package ID and proposed action. On Windows, look for `winget` and `Mozilla.Firefox`; on macOS with Homebrew, look for `brew` and `firefox`. Linux uses its selected package manager and `firefox`. If Firefox is already installed and current, the preview can report that there is nothing to change.
+
+When you want to apply the preview, run `furnish install firefox`. The package manager may ask for administrator approval.
 
 ## Kits
 
@@ -132,7 +136,10 @@ Kits in [`kits/`](kits) group apps users install together. Kits reference apps o
 |---|---|---|---|
 | [`office`](kits/office.yaml) | `libreoffice`, `thunderbird` | `keepassxc` | `7zip` |
 | [`design-studio`](kits/design-studio.yaml) | `gimp`, `inkscape` | `figma` | |
-| [`developer`](kits/developer.yaml) | `git`, `visual-studio-code` | `postman` | |
+| [`developer`](kits/developer.yaml), Windows and macOS | `git`, `visual-studio-code` | `postman` | |
+| [`developer`](kits/developer.yaml), Linux | `git`, `vim` | `curl` | |
+
+Preview the kit with `furnish install developer --dry-run`. A default install includes three apps on each platform. On Linux, use `furnish install developer --without curl` to install just Git and Vim.
 
 ## Translations
 
@@ -169,7 +176,7 @@ The app icons are the vendors' and projects' own, unchanged apart from size opti
 
 The names and logos remain trademarks of their owners; they identify the apps here.
 
-Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The collection's and the kits' icons (`collection.svg`, `office.svg`, `design-studio.svg`, `developer.svg`) and those of `acme-vpn`, `acme-git-ssh`, `acme-vscode-proxy` and `openvpn-client` were drawn for this collection (MIT).
+Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The collection's and the kits' icons (`collection.svg`, `office.svg`, `design-studio.svg`, `developer.svg`) and those of `vim`, `curl`, `acme-vpn`, `acme-git-ssh`, `acme-vscode-proxy` and `openvpn-client` were drawn for this collection (MIT).
 
 ## Add an app
 

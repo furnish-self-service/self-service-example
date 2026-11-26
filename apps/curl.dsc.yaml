@@ -1,0 +1,14 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    name: curl
+    description: Command-line HTTP client for testing APIs on Linux.
+    categories: [Development]
+    icon: icons/curl.svg
+    recommended: "[and(equals(context().os.family, 'Linux'), equals(parameters('role'), 'developer'))]"
+resources:
+  - name: curl
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Linux')]"
+    properties:
+      name: curl

@@ -8,4 +8,7 @@ items:
     required: true
   - app: visual-studio-code
     required: true
+  - app: vim
+    required: true
   - app: postman        # optional, selected by default
+  - app: curl          # optional HTTP client on Linux
