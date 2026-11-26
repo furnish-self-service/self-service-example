@@ -6,15 +6,10 @@ metadata:
     categories: [Internet]
     icon: icons/google-chrome.svg
 resources:
-  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
-  # shows google-chrome as not available there.
-  - name: google-chrome (winget)
+  - name: google-chrome
     type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: Google.Chrome
-  - name: google-chrome (Homebrew)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'macOS')]"
+    condition: "[or(equals(context().os.family, 'Windows'), equals(context().os.family, 'macOS'))]"
     properties:
       name: google-chrome
+      namesByManager:
+        winget: Google.Chrome

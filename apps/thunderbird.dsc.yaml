@@ -7,13 +7,9 @@ metadata:
     icon: icons/thunderbird.svg
     recommended: "[equals(parameters('role'), 'office')]"
 resources:
-  - name: thunderbird (winget)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: Mozilla.Thunderbird
   - name: thunderbird
     type: Furnish/Package
-    condition: "[not(equals(context().os.family, 'Windows'))]"
     properties:
       name: thunderbird
+      namesByManager:
+        winget: Mozilla.Thunderbird

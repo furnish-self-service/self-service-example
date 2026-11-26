@@ -7,13 +7,9 @@ metadata:
     icon: icons/keepassxc.svg
     recommended: true
 resources:
-  - name: keepassxc (winget)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: KeePassXCTeam.KeePassXC
   - name: keepassxc
     type: Furnish/Package
-    condition: "[not(equals(context().os.family, 'Windows'))]"
     properties:
       name: keepassxc
+      namesByManager:
+        winget: KeePassXCTeam.KeePassXC

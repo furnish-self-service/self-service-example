@@ -7,15 +7,10 @@ metadata:
     icon: icons/slack.svg
     recommended: true
 resources:
-  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
-  # shows slack as not available there.
-  - name: slack (winget)
+  - name: slack
     type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: SlackTechnologies.Slack
-  - name: slack (Homebrew)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'macOS')]"
+    condition: "[or(equals(context().os.family, 'Windows'), equals(context().os.family, 'macOS'))]"
     properties:
       name: slack
+      namesByManager:
+        winget: SlackTechnologies.Slack

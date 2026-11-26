@@ -6,13 +6,9 @@ metadata:
     categories: [Video]
     icon: icons/vlc.svg
 resources:
-  - name: vlc (winget)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: VideoLAN.VLC
   - name: vlc
     type: Furnish/Package
-    condition: "[not(equals(context().os.family, 'Windows'))]"
     properties:
       name: vlc
+      namesByManager:
+        winget: VideoLAN.VLC

@@ -1,0 +1,31 @@
+profiles:
+  windows:
+    family: Windows
+    packageManagers: [winget]
+    expect:
+      firefox:
+        packages: { firefox: { manager: winget, name: Mozilla.Firefox } }
+      slack:
+        packages: { slack: { manager: winget, name: SlackTechnologies.Slack } }
+  macos:
+    family: macOS
+    packageManagers: [brew]
+    expect:
+      firefox:
+        packages: { firefox: { manager: brew, name: firefox } }
+      slack:
+        packages: { slack: { manager: brew, name: slack } }
+      7zip:
+        packages: { 7zip: { manager: brew, name: sevenzip } }
+  linux:
+    family: Linux
+    distribution: arch
+    packageManagers: [pacman]
+    expect:
+      firefox:
+        packages: { firefox: { manager: pacman, name: firefox } }
+      slack:
+        steps: []
+        skipped: [slack]
+      libreoffice:
+        packages: { libreoffice: { manager: pacman, name: libreoffice-fresh } }
