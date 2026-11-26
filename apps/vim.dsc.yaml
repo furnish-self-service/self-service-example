@@ -1,0 +1,12 @@
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+metadata:
+  furnish:
+    name: Vim
+    description: Terminal text editor for editing source code on Linux.
+    categories: [Development]
+resources:
+  - name: vim
+    type: Furnish/Package
+    condition: "[equals(context().os.family, 'Linux')]"
+    properties:
+      name: vim

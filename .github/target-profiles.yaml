@@ -7,6 +7,11 @@ profiles:
         packages: { firefox: { manager: winget, name: Mozilla.Firefox } }
       slack:
         packages: { slack: { manager: winget, name: SlackTechnologies.Slack } }
+    expectKits:
+      developer:
+        applicable: [git, visual-studio-code, postman]
+        required: [git, visual-studio-code]
+        defaultSelection: [git, visual-studio-code, postman]
   macos:
     family: macOS
     packageManagers: [brew]
@@ -17,6 +22,11 @@ profiles:
         packages: { slack: { manager: brew, name: slack } }
       7zip:
         packages: { 7zip: { manager: brew, name: sevenzip } }
+    expectKits:
+      developer:
+        applicable: [git, visual-studio-code, postman]
+        required: [git, visual-studio-code]
+        defaultSelection: [git, visual-studio-code, postman]
   linux:
     family: Linux
     distribution: arch
@@ -29,3 +39,8 @@ profiles:
         skipped: [slack]
       libreoffice:
         packages: { libreoffice: { manager: pacman, name: libreoffice-fresh } }
+    expectKits:
+      developer:
+        applicable: [git, vim, curl]
+        required: [git, vim]
+        defaultSelection: [git, vim, curl]

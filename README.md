@@ -19,7 +19,11 @@ An example app collection for [furnish](https://github.com/furnish-self-service/
 | `vlc` | Video | | `VideoLAN.VLC` | `vlc` | `vlc` |
 | `git` | Development | Software development | `Git.Git` | `git` | `git` |
 | `visual-studio-code` | Development | Software development | `Microsoft.VisualStudioCode` | `visual-studio-code` | – |
-| `postman` | Development | Software development | `Postman.Postman` | `postman` | – |
+| `vim` | Development | | – | – | `vim` |
+| `curl` | Development | | – | – | `curl` |
+| `postman` | Development | Software development | `Postman.Postman` | `vim` | Development | | – | – | `vim` |
+| `curl` | Development | | – | – | `curl` |
+| `postman` | – |
 | `gimp` | Graphics | Design and media | `GIMP.GIMP.3` | `gimp` | `gimp` |
 | `inkscape` | Graphics | Design and media | `Inkscape.Inkscape` | `inkscape` | `inkscape` |
 | `figma` | Graphics | Design and media | `Figma.Figma` | `figma` | – |
@@ -117,12 +121,14 @@ metadata:
 ## Try it
 
 ```sh
-furnish collection add git@github.com:furnish-self-service/self-service-example.git --option role=developer
+furnish collection add https://github.com/furnish-self-service/self-service-example.git --option role=developer
 furnish list
-furnish install firefox
+furnish install firefox --dry-run
 ```
 
-`furnish install` asks for your sudo password when the package manager needs root.
+The preview shows the selected package manager, package ID and proposed action. On Windows, look for `winget` and `Mozilla.Firefox`; on macOS with Homebrew, look for `brew` and `firefox`. Linux uses its selected package manager and `firefox`. If Firefox is already installed and current, the preview can report that there is nothing to change.
+
+When you want to apply the preview, run `furnish install firefox`. The package manager may ask for administrator approval.
 
 ## Kits
 
@@ -132,7 +138,9 @@ Kits in [`kits/`](kits) group apps users install together. Kits reference apps o
 |---|---|---|---|
 | [`office`](kits/office.yaml) | `libreoffice`, `thunderbird` | `keepassxc` | `7zip` |
 | [`design-studio`](kits/design-studio.yaml) | `gimp`, `inkscape` | `figma` | |
-| [`developer`](kits/developer.yaml) | `git`, `visual-studio-code` | `postman` | |
+| [`developer`](kits/developer.yaml) | `git`, `visual-studio-code` | `vim` | Development | | – | – | `vim` |
+| `curl` | Development | | – | – | `curl` |
+| `postman` | |
 
 ## Translations
 
