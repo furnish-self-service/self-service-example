@@ -21,9 +21,7 @@ An example app collection for [furnish](https://github.com/furnish-self-service/
 | `visual-studio-code` | Development | Software development | `Microsoft.VisualStudioCode` | `visual-studio-code` | – |
 | `vim` | Development | | – | – | `vim` |
 | `curl` | Development | | – | – | `curl` |
-| `postman` | Development | Software development | `Postman.Postman` | `vim` | Development | | – | – | `vim` |
-| `curl` | Development | | – | – | `curl` |
-| `postman` | – |
+| `postman` | Development | Software development | `Postman.Postman` | `postman` | – |
 | `gimp` | Graphics | Design and media | `GIMP.GIMP.3` | `gimp` | `gimp` |
 | `inkscape` | Graphics | Design and media | `Inkscape.Inkscape` | `inkscape` | `inkscape` |
 | `figma` | Graphics | Design and media | `Figma.Figma` | `figma` | – |
@@ -138,9 +136,10 @@ Kits in [`kits/`](kits) group apps users install together. Kits reference apps o
 |---|---|---|---|
 | [`office`](kits/office.yaml) | `libreoffice`, `thunderbird` | `keepassxc` | `7zip` |
 | [`design-studio`](kits/design-studio.yaml) | `gimp`, `inkscape` | `figma` | |
-| [`developer`](kits/developer.yaml) | `git`, `visual-studio-code` | `vim` | Development | | – | – | `vim` |
-| `curl` | Development | | – | – | `curl` |
-| `postman` | |
+| [`developer`](kits/developer.yaml), Windows and macOS | `git`, `visual-studio-code` | `postman` | |
+| [`developer`](kits/developer.yaml), Linux | `git`, `vim` | `curl` | |
+
+Preview the kit with `furnish install developer --dry-run`. A default install includes three apps on each platform. On Linux, use `furnish install developer --without curl` to install just Git and Vim.
 
 ## Translations
 
