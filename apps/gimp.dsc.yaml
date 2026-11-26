@@ -7,13 +7,9 @@ metadata:
     icon: icons/gimp.svg
     recommended: "[equals(parameters('role'), 'design')]"
 resources:
-  - name: gimp (winget)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: GIMP.GIMP.3
   - name: gimp
     type: Furnish/Package
-    condition: "[not(equals(context().os.family, 'Windows'))]"
     properties:
       name: gimp
+      namesByManager:
+        winget: GIMP.GIMP.3

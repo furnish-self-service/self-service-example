@@ -7,15 +7,10 @@ metadata:
     icon: icons/figma.svg
     recommended: "[equals(parameters('role'), 'design')]"
 resources:
-  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
-  # shows figma as not available there.
-  - name: figma (winget)
+  - name: figma
     type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: Figma.Figma
-  - name: figma (Homebrew)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'macOS')]"
+    condition: "[or(equals(context().os.family, 'Windows'), equals(context().os.family, 'macOS'))]"
     properties:
       name: figma
+      namesByManager:
+        winget: Figma.Figma

@@ -7,15 +7,10 @@ metadata:
     icon: icons/postman.svg
     recommended: "[equals(parameters('role'), 'developer')]"
 resources:
-  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
-  # shows postman as not available there.
-  - name: postman (winget)
+  - name: postman
     type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: Postman.Postman
-  - name: postman (Homebrew)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'macOS')]"
+    condition: "[or(equals(context().os.family, 'Windows'), equals(context().os.family, 'macOS'))]"
     properties:
       name: postman
+      namesByManager:
+        winget: Postman.Postman

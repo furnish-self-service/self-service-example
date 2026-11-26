@@ -7,15 +7,10 @@ metadata:
     icon: icons/adobe-acrobat-reader.svg
     recommended: "[equals(parameters('role'), 'office')]"
 resources:
-  # No package in the Linux distributions' repositories: without a resource for Linux, furnish
-  # shows adobe-acrobat-reader as not available there.
-  - name: adobe-acrobat-reader (winget)
+  - name: adobe-acrobat-reader
     type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: Adobe.Acrobat.Reader.64-bit
-  - name: adobe-acrobat-reader (Homebrew)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'macOS')]"
+    condition: "[or(equals(context().os.family, 'Windows'), equals(context().os.family, 'macOS'))]"
     properties:
       name: adobe-acrobat-reader
+      namesByManager:
+        winget: Adobe.Acrobat.Reader.64-bit

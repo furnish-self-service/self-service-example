@@ -7,13 +7,9 @@ metadata:
     icon: icons/inkscape.svg
     recommended: "[equals(parameters('role'), 'design')]"
 resources:
-  - name: inkscape (winget)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: Inkscape.Inkscape
   - name: inkscape
     type: Furnish/Package
-    condition: "[not(equals(context().os.family, 'Windows'))]"
     properties:
       name: inkscape
+      namesByManager:
+        winget: Inkscape.Inkscape

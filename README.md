@@ -86,29 +86,23 @@ The configuration is an example: replace the server `vpn.acme.example` and the C
     value: http://proxy.acme.example:8080
 ```
 
-## Package names that differ per OS
+## Package names and platform support
 
-When a package has a different ID on some OS, give each variant its own resource with a DSC `condition`. furnish skips resources whose condition is false. [`apps/firefox.dsc.yaml`](apps/firefox.dsc.yaml) shows the pattern:
+Use one `Furnish/Package` resource for an app distributed under different package IDs. In [Firefox](apps/firefox.dsc.yaml), Homebrew and the Linux package managers use the default name. Winget uses the ID in `namesByManager`.
 
 ```yaml
 resources:
-  - name: firefox (winget)
-    type: Furnish/Package
-    condition: "[equals(context().os.family, 'Windows')]"
-    properties:
-      name: Mozilla.Firefox
   - name: firefox
     type: Furnish/Package
-    condition: "[not(equals(context().os.family, 'Windows'))]"
     properties:
       name: firefox
+      namesByManager:
+        winget: Mozilla.Firefox
 ```
 
-`context().os.family` returns `Windows`, `macOS` or `Linux`.
+[LibreOffice](apps/libreoffice.dsc.yaml) also maps pacman to `libreoffice-fresh`. [7-Zip](apps/7zip.dsc.yaml) maps Homebrew to `sevenzip` and Nix to `_7zz`. For a distribution-specific name, use `namesByDistribution`, keyed by the Linux distribution’s `os-release` ID.
 
-Use `namesByManager` when package managers use different names for the same app. The LibreOffice app selects `libreoffice-fresh` with pacman, and the 7-Zip app selects `sevenzip` with Homebrew. For a name specific to a Linux distribution, key `namesByDistribution` by its `os-release` ID. [LibreOffice](apps/libreoffice.dsc.yaml) · [7-Zip](apps/7zip.dsc.yaml)
-
-Apps such as [`apps/slack.dsc.yaml`](apps/slack.dsc.yaml) have a resource for Windows and one for macOS only.
+Keep a DSC `condition` when it determines platform availability. [Slack](apps/slack.dsc.yaml) has a single package step limited to Windows and macOS. [OpenVPN client](apps/openvpn-client.dsc.yaml) keeps separate steps because the VPN configuration needs a different client on each OS: OpenVPN GUI, Tunnelblick or the NetworkManager plugin.
 
 ## Recommendations by role
 
@@ -186,11 +180,10 @@ Zoom publishes no SVG of its app icon, so `zoom.svg` was drawn after it. The col
 
 For the DSC v3 rules and pitfalls, see the [authoring-dsc-v3 skill](https://github.com/furnish-self-service/furnish/blob/main/.claude/skills/authoring-dsc-v3/SKILL.md) in the furnish repository.
 
-To check an app before you push, point furnish at your local clone:
+Run the same checks as CI from the collection root. The target profiles verify package IDs and platform conditions on representative Windows, macOS and Linux systems:
 
 ```sh
-furnish collection add /path/to/your/clone --name my-test
-furnish list
+furnish check . --profiles .github/target-profiles.yaml
 ```
 
 ## License
